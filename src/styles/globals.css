@@ -6,6 +6,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -91,6 +92,12 @@ body {
 .custom_scrollbar {
   scrollbar-width: thin;
   scrollbar-color: var(--primary) var(--background);
+  scrollbar-arrow-color: transparent;
+  scrollbar-face-color: transparent;
+  scrollbar-base-color: transparent;
+  scrollbar-3dlight-color: transparent;
+  scrollbar-highlight-color: transparent;
+  /* scroll bottom padding */
 }
 
 .custom_scrollbar::-webkit-scrollbar {
@@ -103,7 +110,7 @@ body {
 }
 
 .custom_scrollbar::-webkit-scrollbar-track {
-  background-color: var(--background);
+  background-color: transparent;
 }
 
 .custom_scrollbar::-webkit-scrollbar-thumb:hover {
@@ -115,7 +122,7 @@ body {
 }
 
 .custom_scrollbar::-webkit-scrollbar-corner {
-  background-color: var(--background);
+  background-color: transparent;
 }
 
 .custom_scrollbar::-webkit-scrollbar-button {
@@ -134,14 +141,8 @@ body {
   background-color: var(--primary);
 }
 
-.custom_scrollbar::-webkit-scrollbar-button {
-  display: none;
+[vaul-drawer]::after {
+  display: none !important;
 }
 
-.custom_scrollbar::-webkit-scrollbar-track-piece {
-  display: none;
-}
-
-.custom_scrollbar::-webkit-resizer {
-  display: none;
-}
+/* Path: src/styles/tailwind.css */

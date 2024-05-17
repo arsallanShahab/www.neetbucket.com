@@ -14,37 +14,20 @@ type User = {
 };
 
 const GlobalContext = createContext<{
-  user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  isLoadingUser: boolean;
-  setIsLoadingUser: React.Dispatch<React.SetStateAction<boolean>>;
-  isOpen: boolean;
-  onOpen: () => void;
-  onOpenChange: () => void;
+  cartOpen: boolean;
+  setCartOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }>({
-  user: null,
-  setUser: () => {},
-  isLoadingUser: true,
-  setIsLoadingUser: () => {},
-  isOpen: false,
-  onOpen: () => {},
-  onOpenChange: () => {},
+  cartOpen: false,
+  setCartOpen: () => {},
 });
 
 const ContextProvider: FC<Props> = (props: Props) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoadingUser, setIsLoadingUser] = useState<boolean>(true);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [cartOpen, setCartOpen] = useState<boolean>(false);
   return (
     <GlobalContext.Provider
       value={{
-        user,
-        setUser,
-        isLoadingUser,
-        setIsLoadingUser,
-        isOpen,
-        onOpen,
-        onOpenChange,
+        cartOpen,
+        setCartOpen,
       }}
     >
       {props.children}

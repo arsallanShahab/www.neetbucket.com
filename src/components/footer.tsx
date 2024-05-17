@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 type Props = {};
@@ -5,35 +6,35 @@ type Props = {};
 const Footer = (props: Props) => {
   return (
     <div className="w-full bg-zinc-900 bg-fixed">
-      <div className="max-w-screen-2xl mx-auto flex flex-row justify-between items-center gap-5 px-5 py-7 md:px-10">
-        <div className="flex flex-row justify-start items-center flex-1 flex-wrap gap-5 md:gap-10">
-          <div className="flex flex-row justify-start items-center gap-5">
-            <a href="/" className="text-white font-rubik text-lg font-[700]">
+      <div className="mx-auto flex max-w-screen-2xl flex-row items-center justify-between gap-5 px-5 py-7 md:px-10">
+        <div className="flex flex-1 flex-row flex-wrap items-center justify-start gap-5 md:gap-10">
+          <div className="flex flex-row items-center justify-start gap-5">
+            <Link href="/" className="font-rubik text-lg font-[700] text-white">
               Neet Bucket
-            </a>
-            <p className="text-white text-sm font-rubik">
+            </Link>
+            <p className="font-rubik text-sm text-white">
               © 2021 Neet Bucket. All rights reserved
             </p>
           </div>
-          <div className="flex flex-row justify-start items-center gap-5">
-            <a href="/" className="text-white text-sm font-rubik">
+          <div className="flex flex-row items-center justify-start gap-5">
+            <Link href="/" className="font-rubik text-sm text-white">
               Privacy Policy
-            </a>
-            <a href="/" className="text-white text-sm font-rubik">
+            </Link>
+            <Link href="/" className="font-rubik text-sm text-white">
               Terms of Service
-            </a>
+            </Link>
           </div>
         </div>
-        <div className="flex flex-row justify-start items-center gap-5">
-          <a href="/" className="text-white text-sm font-rubik">
+        <div className="flex flex-row items-center justify-start gap-5">
+          <Link href="/" className="font-rubik text-sm text-white">
             Facebook
-          </a>
-          <a href="/" className="text-white text-sm font-rubik">
+          </Link>
+          <Link href="/" className="font-rubik text-sm text-white">
             Instagram
-          </a>
-          <a href="/" className="text-white text-sm font-rubik">
+          </Link>
+          <Link href="/" className="font-rubik text-sm text-white">
             Twitter
-          </a>
+          </Link>
         </div>
       </div>
     </div>
