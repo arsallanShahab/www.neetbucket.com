@@ -1,5 +1,4 @@
-import { auth } from "@clerk/nextjs";
-import { createClerkClient } from "@clerk/nextjs/server";
+import { auth, createClerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 const clerk = createClerkClient({
