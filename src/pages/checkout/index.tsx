@@ -144,7 +144,7 @@ const Index = () => {
             invalidateCache("orders");
             dispatch(clearCart());
             toast.success("Payment successful");
-            router.push("/profile?tab=orders");
+            router.push("/user/orders");
           },
           prefill: {
             name: formData.name,
@@ -221,7 +221,7 @@ const Index = () => {
             invalidateCache("orders");
             dispatch(clearCart());
             toast.success("Payment successful");
-            router.push("/profile?tab=orders");
+            router.push("/user/orders");
           },
           prefill: {
             name: formData.name,

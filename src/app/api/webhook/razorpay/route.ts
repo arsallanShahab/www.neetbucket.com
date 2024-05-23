@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
     if (orderType === "hardcopy") {
       const { db } = await connectToDatabase();
-      const ordersCollection = db.collection("hardcopy_orders");
+      const ordersCollection = db.collection("orders");
       const update = await ordersCollection.updateOne(
         { order_id: entity.order_id },
         {
