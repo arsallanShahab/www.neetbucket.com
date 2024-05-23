@@ -1,5 +1,5 @@
 import Navbar from "@/components/navbar";
-import { Providers } from "@/components/Providers";
+import { Providers } from "@/components/providers";
 import "@/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { AppProps } from "next/app";
