@@ -16,6 +16,16 @@ export default authMiddleware({
     "/sign-in",
     "/sign-up",
     "/api/webhook(.*)",
+    "/soft-copy/",
+    "/hard-copy/",
+    "/contact/",
+    "/about/",
+    "/faq/",
+    "/privacy-policy/",
+    "/terms-and-conditions/",
+    "/sign-in/",
+    "/sign-up/",
+    "/api/webhook(.*)/",
   ],
 });
 
