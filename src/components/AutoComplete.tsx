@@ -116,8 +116,8 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
             <motion.ul
               transition={{
                 type: "spring",
-                duration: 0.4,
-                bounce: 0.4,
+                duration: 0.5,
+                bounce: 0.5,
               }}
               initial={{ scale: 0.75, opacity: 0.75 }}
               animate={{
@@ -138,7 +138,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
               ref={ref as RefObject<HTMLUListElement> | undefined}
               className="absolute z-[999] mt-2.5 max-h-[300px] w-full origin-top overflow-hidden overflow-y-auto rounded-2xl border bg-white p-2 shadow-xl scrollbar-hide"
             >
-              {filteredOptions.map((option) => (
+              {filteredOptions.map((option, i) => (
                 <motion.li
                   key={option.value}
                   onClick={() => handleOptionClick(option)}

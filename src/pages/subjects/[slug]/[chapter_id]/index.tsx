@@ -20,7 +20,7 @@ type Props = {
 };
 
 const Index = (props: Props) => {
-  const { items, isCartOpen } = useSelector((state: RootState) => state.cart);
+  const { softcopy_items: items, isCartOpen } = useSelector((state: RootState) => state.cart);
   const isInCart = items?.some((item) => item.sys.id === props.data.sys.id);
   const [pointsVisible, setPointsVisible] = useState<boolean>(false);
 

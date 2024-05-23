@@ -8,7 +8,6 @@ export async function POST(request: Request) {
     validateWebhookSignature(
       JSON.stringify(text),
       signature,
-      //   "65a9812b54bcff1b869b0321",
       process.env.RAZORPAY_WEBHOOK_SECRET,
     );
 
@@ -24,6 +23,23 @@ export async function POST(request: Request) {
     if (orderType === "softcopy") {
       const { db } = await connectToDatabase();
       const ordersCollection = db.collection("orders");
+      const update = await ordersCollection.updateOne(
+        { order_id: entity.order_id },
+        {
+          $set: {
+            payment_status: "paid",
+            payment_id: entity.id,
+          },
+        },
+      );
+      return new Response("Success! webhook working", {
+        status: 200,
+      });
+    }
+
+    if (orderType === "hardcopy") {
+      const { db } = await connectToDatabase();
+      const ordersCollection = db.collection("hardcopy_orders");
       const update = await ordersCollection.updateOne(
         { order_id: entity.order_id },
         {

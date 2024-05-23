@@ -7,7 +7,8 @@ import NextInput from "@/components/NextInput";
 import Wrapper from "@/components/Wrapper";
 import useGet from "@/lib/hooks/get-api";
 import { excerpt, formatImageLink } from "@/lib/utils";
-import { RootState } from "@/redux/store";
+import { clearCart } from "@/redux/slices/cart";
+import { AppDispatch, RootState } from "@/redux/store";
 import { useAuth, useUser } from "@clerk/nextjs";
 import {
   Autocomplete,
@@ -24,7 +25,7 @@ import { useRouter } from "next/router";
 import React, { Key, useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import useRazorpay, { RazorpayOptions } from "react-razorpay";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 // import useRazorpay from "src/hooks/useRazorpay";
 
 interface RazorpayOptionsCustom extends Omit<RazorpayOptions, "amount"> {}
@@ -32,9 +33,15 @@ interface RazorpayOptionsCustom extends Omit<RazorpayOptions, "amount"> {}
 const StatesData = State.getStatesOfCountry("IN");
 
 const Index = () => {
-  const { items, total_amount, total_items } = useSelector(
-    (state: RootState) => state.cart,
-  );
+  const {
+    order_type,
+    softcopy_items,
+    hardcopy_items,
+    total_amount_hardcopy,
+    total_items_hardcopy,
+    total_amount_softcopy,
+    total_items_softcopy,
+  } = useSelector((state: RootState) => state.cart);
   const { isLoaded, isSignedIn, user } = useUser();
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [CitiesData, setCitiesData] = useState<ICity[]>([]);
@@ -48,6 +55,7 @@ const Index = () => {
   const { invalidateCache } = useGet();
   const [Razorpay, isRazorpayLoaded] = useRazorpay();
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
   // form datas for the checkout page with the user's details types
   const [formData, setFormData] = useState<{
@@ -69,7 +77,6 @@ const Index = () => {
   console.log(selectedState);
 
   const handlePlaceOrder = useCallback(async () => {
-    console.log(formData);
     if (!formData.name) {
       toast.error("Please enter your name");
       return;
@@ -101,66 +108,147 @@ const Index = () => {
     const state = StatesData.find(
       (state) => state.isoCode === selectedState?.value,
     );
-    const orderData = {
-      ...formData,
-      city: selectedCity?.name,
-      state: selectedState?.name,
-      paymentMethod: Array.from(paymentMethod).toString(),
-      items,
-      total_amount,
-      total_items,
-      user_id: user?.id,
-    };
-    try {
-      setIsOrderPlaced(true);
-      const response = await fetch("/api/order/softcopy", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(orderData),
-      });
-      const data = (await response.json()) as {
-        order_id: string;
-        success: boolean;
+    if (order_type === "softcopy") {
+      const orderData = {
+        ...formData,
+        city: selectedCity?.name,
+        state: selectedState?.name,
+        paymentMethod: Array.from(paymentMethod).toString(),
+        items: softcopy_items,
+        total_amount: total_amount_softcopy,
+        total_items: total_items_softcopy,
+        user_id: user?.id,
       };
-      console.log(orderData);
-      const options: RazorpayOptionsCustom = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID as string,
-        currency: "INR",
-        name: "NeetBucket",
-        description: "Softcopy Order",
-        order_id: data.order_id,
-        handler: function (response: any) {
-          // alert(response.razorpay_payment_id);
-          invalidateCache("orders");
-          toast.success("Payment successful");
-          router.push("/profile?tab=orders");
-        },
-        prefill: {
-          name: formData.name,
-          email: formData.email,
-          contact: formData.phone,
-        },
-        notes: {
-          name: formData.name,
-          address: formData.address,
-          city: selectedCity?.name,
-          state: state?.name || selectedState?.name,
+      try {
+        setIsOrderPlaced(true);
+        const response = await fetch("/api/order/softcopy", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(orderData),
+        });
+        const data = (await response.json()) as {
+          order_id: string;
+          success: boolean;
+        };
+        console.log(orderData);
+        const options: RazorpayOptionsCustom = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID as string,
+          currency: "INR",
+          name: "NeetBucket",
+          description: "Softcopy Order",
           order_id: data.order_id,
-          order_type: "softcopy",
-        },
-        theme: {
-          color: "#F37254",
-        },
+          handler: function (response: any) {
+            // alert(response.razorpay_payment_id);
+            invalidateCache("orders");
+            dispatch(clearCart());
+            toast.success("Payment successful");
+            router.push("/profile?tab=orders");
+          },
+          prefill: {
+            name: formData.name,
+            email: formData.email,
+            contact: formData.phone,
+          },
+          notes: {
+            name: formData.name,
+            address: formData.address,
+            city: selectedCity?.name,
+            state: state?.name || selectedState?.name,
+            order_id: data.order_id,
+            order_type: "softcopy",
+          },
+          theme: {
+            color: "#F37254",
+          },
+        };
+        const rzpay = new Razorpay(options as RazorpayOptions);
+        rzpay.open();
+      } catch (error) {
+        const err = error as Error & { message: string };
+        toast.error(err.message || "An error occurred while placing the order");
+      } finally {
+        setIsOrderPlaced(false);
+      }
+    }
+    if (order_type === "hardcopy") {
+      const mappedItems = hardcopy_items.map((item) => {
+        return {
+          id: item.sys.id,
+          title: item.fields.heading,
+          thumbnail: {
+            url: formatImageLink(item.fields.chapterThumbnail.fields.file.url),
+            fileName: item.fields.heading,
+          },
+          quantity: 1,
+          price: item.fields.price,
+        };
+      });
+      const orderData = {
+        ...formData,
+        city: selectedCity?.name,
+        state: selectedState?.name,
+        paymentMethod: Array.from(paymentMethod).toString(),
+        items: mappedItems,
+        total_amount: total_amount_hardcopy,
+        total_items: total_items_hardcopy,
+        user_id: user?.id,
       };
-      const rzpay = new Razorpay(options as RazorpayOptions);
-      rzpay.open();
-    } catch (error) {
-      const err = error as Error & { message: string };
-      toast.error(err.message || "An error occurred while placing the order");
-    } finally {
-      setIsOrderPlaced(false);
+      console.log(orderData, "hardcopy");
+      try {
+        setIsOrderPlaced(true);
+        const response = await fetch("/api/order/hardcopy", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(orderData),
+        });
+        const data = (await response.json()) as {
+          order_id: string;
+          success: boolean;
+        };
+        console.log(data);
+        const options: RazorpayOptionsCustom = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID as string,
+          currency: "INR",
+          name: "NeetBucket",
+          description: "Hardcopy Order",
+          order_id: data.order_id,
+          handler: function (response: any) {
+            // alert(response.razorpay_payment_id);
+            invalidateCache("orders");
+            dispatch(clearCart());
+            toast.success("Payment successful");
+            router.push("/profile?tab=orders");
+          },
+          prefill: {
+            name: formData.name,
+            email: formData.email,
+            contact: formData.phone,
+          },
+          notes: {
+            name: formData.name,
+            address: formData.address,
+            city: selectedCity?.name,
+            state: state?.name || selectedState?.name,
+            delivery_status: "pending",
+            order_id: data.order_id,
+            order_type: "hardcopy",
+          },
+          theme: {
+            color: "#F37254",
+          },
+        };
+        const rzpay = new Razorpay(options as RazorpayOptions);
+        rzpay.open();
+      } catch (error) {
+        const err = error as Error & { message: string };
+        toast.error(err.message || "An error occurred while placing the order");
+      } finally {
+        setIsOrderPlaced(false);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -169,9 +257,9 @@ const Index = () => {
     selectedState,
     selectedCity,
     paymentMethod,
-    items,
-    total_amount,
-    total_items,
+    softcopy_items,
+    total_amount_softcopy,
+    total_items_softcopy,
   ]);
 
   useEffect(() => {
@@ -342,40 +430,74 @@ const Index = () => {
             </GridContainer>
 
             <Heading variant="h5">
-              Cart Summary ({total_items} {total_items > 1 ? "items" : "item"})
+              Cart Summary (
+              {order_type === "softcopy"
+                ? total_items_softcopy
+                : total_items_hardcopy}{" "}
+              ) items
             </Heading>
 
             <GridContainer gap="md" className="custom_scrollbar lg:grid-cols-2">
-              {items?.map((item) => {
-                const thumbnailUrl = formatImageLink(
-                  item.fields.chapterThumbnail.fields.file.url,
-                );
-                return (
-                  <FlexContainer key={item.sys.id} gap="md">
-                    <Image
-                      width={500}
-                      height={500}
-                      src={thumbnailUrl}
-                      alt={item?.fields?.chapterName}
-                      className="h-16 w-16 rounded-md border border-gray-200"
-                    />
-                    <FlexContainer variant="column-start" gap="xs">
-                      <h1 className="max-w-[185px] font-sora text-xs font-medium">
-                        {excerpt(item?.fields?.chapterName, 40)}
-                      </h1>
-                      <p className="text-xs text-gray-500">
-                        {item?.fields?.subject?.fields?.subjectName}
-                      </p>
-                      <h1 className="font-sora text-sm font-semibold">
-                        <span className="mr-2 text-xs font-normal text-gray-500">
-                          x 1
-                        </span>{" "}
-                        ₹{item?.fields?.price}
-                      </h1>
+              {order_type === "softcopy" &&
+                softcopy_items?.map((item) => {
+                  const thumbnailUrl = formatImageLink(
+                    item.fields.chapterThumbnail.fields.file.url,
+                  );
+                  return (
+                    <FlexContainer key={item.sys.id} gap="md">
+                      <Image
+                        width={500}
+                        height={500}
+                        src={thumbnailUrl}
+                        alt={item?.fields?.chapterName}
+                        className="h-16 w-16 rounded-md border border-gray-200"
+                      />
+                      <FlexContainer variant="column-start" gap="xs">
+                        <h1 className="max-w-[185px] font-sora text-xs font-medium">
+                          {excerpt(item?.fields?.chapterName, 40)}
+                        </h1>
+                        <p className="text-xs text-gray-500">
+                          {item?.fields?.subject?.fields?.subjectName}
+                        </p>
+                        <h1 className="font-sora text-sm font-semibold">
+                          <span className="mr-2 text-xs font-normal text-gray-500">
+                            x 1
+                          </span>{" "}
+                          ₹{item?.fields?.price}
+                        </h1>
+                      </FlexContainer>
                     </FlexContainer>
-                  </FlexContainer>
-                );
-              })}
+                  );
+                })}
+              {order_type === "hardcopy" &&
+                hardcopy_items.map((item) => {
+                  const thumbnailUrl = formatImageLink(
+                    item.fields.chapterThumbnail.fields.file.url,
+                  );
+                  return (
+                    <FlexContainer key={item.sys.id} gap="md">
+                      <Image
+                        width={500}
+                        height={500}
+                        src={thumbnailUrl}
+                        alt={item?.fields?.heading}
+                        className="h-16 w-16 rounded-md border border-gray-200"
+                      />
+                      <FlexContainer variant="column-start" gap="xs">
+                        <h1 className="max-w-[185px] font-sora text-xs font-medium">
+                          {excerpt(item?.fields?.heading, 40)}
+                        </h1>
+
+                        <h1 className="font-sora text-sm font-semibold">
+                          <span className="mr-2 text-xs font-normal text-gray-500">
+                            x 1
+                          </span>{" "}
+                          ₹{item?.fields?.price}
+                        </h1>
+                      </FlexContainer>
+                    </FlexContainer>
+                  );
+                })}
             </GridContainer>
           </FlexContainer>
           <FlexContainer variant="column-start" gap="xl">
@@ -386,7 +508,8 @@ const Index = () => {
                 labelPlacement="outside"
                 placeholder="Select your payment method"
                 selectedKeys={paymentMethod}
-                //onSelectionChange={setPaymentMethod}
+                isDisabled={order_type === "softcopy"}
+                onSelectionChange={setPaymentMethod}
               >
                 <SelectItem key="cod">Cash on Delivery</SelectItem>
                 <SelectItem key="online">Online Payment</SelectItem>
@@ -403,11 +526,21 @@ const Index = () => {
             <FlexContainer variant="column-start" gap="sm">
               <FlexContainer variant="row-between" gap="sm">
                 <Heading variant="body1">Subtotal</Heading>
-                <Heading variant="subtitle1">₹{total_amount}</Heading>
+                <Heading variant="subtitle1">
+                  ₹
+                  {order_type === "softcopy"
+                    ? total_amount_softcopy
+                    : total_amount_hardcopy}
+                </Heading>
               </FlexContainer>
               <FlexContainer variant="row-between" gap="md">
                 <Heading variant="body1">Total Amount</Heading>
-                <Heading variant="subtitle1">₹{total_amount}</Heading>
+                <Heading variant="subtitle1">
+                  ₹
+                  {order_type === "softcopy"
+                    ? total_amount_softcopy
+                    : total_amount_hardcopy}
+                </Heading>
               </FlexContainer>
             </FlexContainer>
             <NextButton

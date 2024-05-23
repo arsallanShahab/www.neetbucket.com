@@ -153,7 +153,7 @@ export const getStaticProps = async (ctx: GetStaticPropsContext) => {
 };
 
 const Chapter = ({ chapter }: { chapter: SoftCopyChapter }) => {
-  const { isCartOpen, items } = useSelector((state: RootState) => state.cart);
+  const { isCartOpen, softcopy_items: items } = useSelector((state: RootState) => state.cart);
   const isInCart = items?.some((item) => item.sys.id === chapter.sys.id);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();

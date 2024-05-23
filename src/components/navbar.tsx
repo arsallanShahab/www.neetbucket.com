@@ -31,9 +31,11 @@ type Props = {};
 
 const Navbar = (props: Props) => {
   // const { cartOpen, setCartOpen } = useGlobalContext();
-  const { items, isCartOpen, total_amount } = useSelector(
-    (state: RootState) => state.cart,
-  );
+  const {
+    softcopy_items: items,
+    isCartOpen,
+    total_amount_softcopy: total_amount,
+  } = useSelector((state: RootState) => state.cart);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
@@ -94,7 +96,7 @@ const Navbar = (props: Props) => {
             {[
               { name: "Home", path: "/" },
               { name: "Subjects", path: "/subjects" },
-              { name: "Hard Copy", path: "/hard-copy" },
+              { name: "Hard Copy", path: "/hardcopy" },
               // { name: "About Us", path: "/about-us" },
               { name: "Contact Us", path: "/contact-us" },
             ].map((item, index) => {
@@ -154,10 +156,10 @@ const Navbar = (props: Props) => {
                 />
               </DropdownTrigger>
               <DropdownMenu aria-label="Static Actions">
-                <DropdownItem onClick={() => router.push("/profile")}>
+                <DropdownItem onClick={() => router.push("/user/profile")}>
                   Profile
                 </DropdownItem>
-                <DropdownItem onClick={() => router.push("profile?tab=orders")}>
+                <DropdownItem onClick={() => router.push("/user/orders")}>
                   Orders
                 </DropdownItem>
                 <DropdownItem key="" href="/settings">

@@ -14,6 +14,7 @@ interface FlexContainerProps {
     | "row-between"
     | "column-between";
   className?: string;
+  onClick?: () => void;
 }
 
 const getVariantClass = (variant: FlexContainerProps["variant"]) => {
@@ -77,12 +78,16 @@ const FlexContainer = ({
   variant = "row-start",
   className,
   children,
+  onClick,
 }: FlexContainerProps) => {
   const variantClass = getVariantClass(variant);
   const gapClass = getGapClass(gap);
   const wrapClass = getWrapClass(wrap);
   return (
-    <div className={cn("flex", wrapClass, variantClass, gapClass, className)}>
+    <div
+      onClick={onClick}
+      className={cn("flex", wrapClass, variantClass, gapClass, className)}
+    >
       {children}
     </div>
   );

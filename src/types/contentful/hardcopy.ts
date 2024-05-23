@@ -1,6 +1,6 @@
 import { EntrySkeletonType } from "contentful";
 
-export interface HardcopyEntry extends EntrySkeletonType {
+export interface HardCopyEntry extends EntrySkeletonType {
   metadata: {
     tags: [];
   };

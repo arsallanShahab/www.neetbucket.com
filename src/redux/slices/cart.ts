@@ -1,51 +1,111 @@
-import { SoftCopyChapter } from "@/lib/types";
+import { HardCopyEntry } from "@/types/contentful/hardcopy";
+import { SoftCopyEntry } from "@/types/contentful/softcopy";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 interface CartState {
-  items: SoftCopyChapter[];
+  order_type: "softcopy" | "hardcopy";
+  softcopy_items: SoftCopyEntry[];
+  hardcopy_items: HardCopyEntry[];
   isCartOpen: boolean;
-  total_items: number;
-  total_amount: number;
+  total_items_softcopy: number;
+  total_amount_softcopy: number;
+  total_items_hardcopy: number;
+  total_amount_hardcopy: number;
 }
 
 const initialState: CartState = {
-  items: [],
+  order_type: "softcopy",
   isCartOpen: false,
-  total_items: 0,
-  total_amount: 0,
+  softcopy_items: [],
+  total_items_softcopy: 0,
+  total_amount_softcopy: 0,
+  hardcopy_items: [],
+  total_items_hardcopy: 0,
+  total_amount_hardcopy: 0,
 };
 
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    addItem(state, action: PayloadAction<SoftCopyChapter>) {
-      if (state.items.find((item) => item.sys.id === action.payload.sys.id)) {
+    addItem(state, action: PayloadAction<SoftCopyEntry>) {
+      state.order_type = "softcopy";
+      if (
+        state.softcopy_items.find(
+          (item) => item.sys.id === action.payload.sys.id,
+        )
+      ) {
         return;
       }
-      state.items.push(action.payload);
-      state.total_items = state.items.length;
-      state.total_amount = state.items.reduce(
+      state.softcopy_items.push(action.payload);
+      state.total_items_softcopy = state.softcopy_items.length;
+      state.total_amount_softcopy = state.softcopy_items.reduce(
         (acc, item) => acc + item.fields.price,
         0,
       );
     },
-    removeItem(state, action: PayloadAction<SoftCopyChapter["sys"]["id"]>) {
-      state.items = state.items.filter(
+    removeItem(state, action: PayloadAction<SoftCopyEntry["sys"]["id"]>) {
+      state.softcopy_items = state.softcopy_items.filter(
         (item) => item.sys.id !== action.payload,
       );
-      state.total_items = state.items.length;
-      state.total_amount = state.items.reduce(
+      state.total_items_softcopy = state.softcopy_items.length;
+      state.total_amount_softcopy = state.softcopy_items.reduce(
         (acc, item) => acc + item.fields.price,
         0,
       );
     },
+    addItemHardCopy(state, action: PayloadAction<HardCopyEntry>) {
+      console.log("Adding hardcopy item", action.payload);
+      state.order_type = "hardcopy";
+      if (
+        state?.hardcopy_items?.find(
+          (item) => item?.sys?.id === action?.payload?.sys?.id,
+        )
+      ) {
+        return;
+      }
+      state?.hardcopy_items?.push(action?.payload);
+      state.total_items_hardcopy = state?.hardcopy_items?.length;
+      state.total_amount_hardcopy = state?.hardcopy_items?.reduce(
+        (acc, item) => acc + item?.fields?.price,
+        0,
+      );
+    },
+    removeItemHardCopy(
+      state,
+      action: PayloadAction<HardCopyEntry["sys"]["id"]>,
+    ) {
+      state.hardcopy_items = state.hardcopy_items.filter(
+        (item) => item.sys.id !== action.payload,
+      );
+      state.total_items_hardcopy = state.hardcopy_items.length;
+      state.total_amount_hardcopy = state.hardcopy_items.reduce(
+        (acc, item) => acc + item.fields.price,
+        0,
+      );
+    },
+
     toggleCart(state) {
       state.isCartOpen = !state.isCartOpen;
+    },
+    clearCart(state) {
+      state.softcopy_items = [];
+      state.hardcopy_items = [];
+      state.total_items_softcopy = 0;
+      state.total_amount_softcopy = 0;
+      state.total_items_hardcopy = 0;
+      state.total_amount_hardcopy = 0;
     },
   },
 });
 
-export const { addItem, removeItem, toggleCart } = cartSlice.actions;
+export const {
+  addItem,
+  removeItem,
+  toggleCart,
+  addItemHardCopy,
+  removeItemHardCopy,
+  clearCart,
+} = cartSlice.actions;
 
 export const cartReducer = cartSlice.reducer;

@@ -1,19 +1,27 @@
 import { connectToDatabase } from "@/lib/mongodb";
 import { generateReceipt } from "@/lib/utils";
-import { WithoutId } from "mongodb";
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
-import { IMongoDBChapter } from "../../webhook/contentful/add-to-mongodb/route";
 
 const instance = new Razorpay({
   key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-export interface SoftCopyOrder {
+export interface HardCopyOrder {
   currency: string;
   order_id: string;
-  items?: IMongoDBChapter[]; // Optional array of strings (can be null)
+  items: {
+    id: string;
+    title: string;
+    thumbnail: {
+      url: string;
+      fileName: string;
+      size: number;
+    };
+    quantity: number;
+    price: number;
+  }[];
   receipt?: string; // Optional string (can be null)
   user_id: string;
   user_name: string;
@@ -24,6 +32,17 @@ export interface SoftCopyOrder {
     city: string;
     state: string;
   };
+  shipping_details: {
+    address: string;
+    city: string;
+    state: string;
+  };
+  delivery: {
+    date: Date | string | null;
+    status: "pending" | "packed" | "dispatched" | "delivered" | "cancelled";
+    courier: string | null;
+    tracking_id: string | null;
+  };
   total_quantity: number;
   total_amount: number;
   order_type: "softcopy" | "hardcopy";
@@ -33,7 +52,17 @@ export interface SoftCopyOrder {
 
 export async function POST(req: Request) {
   const body: {
-    items: { sys: { id: string } }[];
+    items: {
+      id: string;
+      title: string;
+      thumbnail: {
+        url: string;
+        fileName: string;
+        size: number;
+      };
+      quantity: number;
+      price: number;
+    }[];
     total_amount: number;
     total_items: number;
     user_id: string;
@@ -46,62 +75,64 @@ export async function POST(req: Request) {
   } = await req.json();
   console.log(body);
   try {
-    const boughtChaptersIds = body.items.map((item) => {
-      return item.sys.id;
-    });
-    const { db } = await connectToDatabase();
-    const chapters = (await db
-      .collection("chapters")
-      .find()
-      .toArray()) as unknown as WithoutId<IMongoDBChapter>[];
-    const boughtChapters = chapters.filter((chapter) => {
-      return boughtChaptersIds.includes(chapter.contentfulId);
-    });
-    // console.log(boughtChapters, "boughtChapters");
     const receiptId = generateReceipt();
-    const createOrder = await instance.orders.create({
+    const order = await instance.orders.create({
       amount: body.total_amount * 100,
       currency: "INR",
       receipt: receiptId,
     });
-    const orderObject: SoftCopyOrder = {
+    const orderObject: HardCopyOrder = {
       currency: "INR",
-      order_id: createOrder.id,
+      order_id: order.id,
       user_id: body.user_id,
       user_email: body.email,
       user_name: body.name,
       user_phone: body.phone,
-      order_type: "softcopy",
-      payment_status: "pending",
+      items: body.items,
+      receipt: receiptId,
       billing_details: {
         address: body.address,
         city: body.city,
         state: body.state,
       },
-      items: boughtChapters,
+      shipping_details: {
+        address: body.address,
+        city: body.city,
+        state: body.state,
+      },
+      delivery: {
+        date: null,
+        status: "pending",
+        courier: null,
+        tracking_id: null,
+      },
+      order_type: "hardcopy",
+      payment_status: "pending",
       total_quantity: body.total_items,
       total_amount: body.total_amount,
       created_at: new Date(),
-      // created_at: new Date(),
     };
-    const orderCollection = db.collection("orders");
-    const insertOrder = await orderCollection.insertOne(orderObject);
-    // console.log(insertOrder, "insertOrder");
+    const { db } = await connectToDatabase();
+    const ordersCollection = db.collection("orders");
+    const insertOrder = await ordersCollection.insertOne(orderObject);
     if (!insertOrder) {
       return NextResponse.json({
         success: false,
-        message: "Failed to save order in database",
+        message: "Failed to place order",
       });
     }
     return NextResponse.json({
       success: true,
-      message: "Order created successfully",
-      order_id: createOrder.id,
+      message: "Order placed successfully",
+      order_id: order.id,
     });
   } catch (error) {
+    console.log(error);
     return NextResponse.json({
       success: false,
-      message: "Failed to create order",
+      body: {
+        message: "Internal server error",
+      },
     });
   }
 }
