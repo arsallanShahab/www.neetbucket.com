@@ -13,7 +13,7 @@ const instance = new Razorpay({
 export interface SoftCopyOrder {
   currency: string;
   order_id: string;
-  items?: IMongoDBChapter[]; // Optional array of strings (can be null)
+  items: IMongoDBChapter[]; // Optional array of strings (can be null)
   receipt?: string; // Optional string (can be null)
   user_id: string;
   user_name: string;

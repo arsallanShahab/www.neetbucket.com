@@ -1,6 +1,8 @@
 import { HardCopyOrder } from "@/app/api/order/hardcopy/route";
 import { SoftCopyOrder } from "@/app/api/order/softcopy/route";
+import { IMongoDBChapter } from "@/app/api/webhook/contentful/add-to-mongodb/route";
 import FlexContainer from "@/components/FlexContainer";
+import NextButton from "@/components/NextButton";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useGet from "@/lib/hooks/get-api";
-import { cn, excerpt } from "@/lib/utils";
+import { cn, convertToHttpsLink, excerpt } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
 import {
   Input,
@@ -32,7 +34,7 @@ import {
 } from "@nextui-org/react";
 import dayjs from "dayjs";
 import { MailIcon, MoreHorizontalIcon, PhoneIcon } from "lucide-react";
-import { Document } from "mongodb";
+import { Document, WithId } from "mongodb";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from "react";
@@ -68,9 +70,10 @@ export default function Index() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const [selectedOrder, setSelectedOrder] = useState<
-    ISoftCopy | IHardCopy | null
-  >(null);
+  const [selectedOrder, setSelectedOrder] =
+    useState<WithId<SoftCopyOrder> | null>(null);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [userDetails, setUserDetails] = useState<{
     firstName: string;
@@ -132,7 +135,7 @@ export default function Index() {
   } = useGet<{
     success: boolean;
     orders: {
-      softcopy_orders: ISoftCopy[];
+      softcopy_orders: WithId<SoftCopyOrder>[];
       hardcopy_orders: IHardCopy[];
     };
   }>({
@@ -158,243 +161,386 @@ export default function Index() {
   console.log(selectedOrder, "selectedOrder");
 
   return (
-    <div className="grid min-h-screen w-full overflow-hidden lg:grid-cols-[280px_1fr]">
-      <div className="hidden border-r bg-white lg:block">
-        <div className="flex h-full max-h-screen flex-col gap-2 pt-5">
-          <div className="grid items-start px-4 text-sm font-medium">
-            <Link
-              href="/user/profile"
-              className={cn(
-                "flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
-              )}
-            >
-              <UserIcon className="h-4 w-4" />
-              Profile
-            </Link>
-            <Link
-              href="/user/orders"
-              className={cn(
-                "flex cursor-pointer items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-100 px-3 py-2 transition-all ",
-                "text-gray-900 hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50",
-              )}
-            >
-              <ShoppingCartIcon className="h-4 w-4" />
-              Orders
-            </Link>
+    <>
+      <div className="grid min-h-screen w-full overflow-hidden lg:grid-cols-[280px_1fr]">
+        <div className="hidden border-r bg-white lg:block">
+          <div className="flex h-full max-h-screen flex-col gap-2 pt-5">
+            <div className="grid items-start px-4 text-sm font-medium">
+              <Link
+                href="/user/profile"
+                className={cn(
+                  "flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
+                )}
+              >
+                <UserIcon className="h-4 w-4" />
+                Profile
+              </Link>
+              <Link
+                href="/user/orders"
+                className={cn(
+                  "flex cursor-pointer items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-100 px-3 py-2 transition-all ",
+                  "text-gray-900 hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50",
+                )}
+              >
+                <ShoppingCartIcon className="h-4 w-4" />
+                Orders
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex flex-col">
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-          <div className="flex flex-col items-start justify-start gap-2 rounded-lg *:w-full">
-            <h2 className="font-rubik text-4xl font-semibold">Orders</h2>
+        <div className="flex flex-col">
+          <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
+            <div className="flex flex-col items-start justify-start gap-2 rounded-lg *:w-full">
+              <h2 className="font-rubik text-4xl font-semibold">Orders</h2>
 
-            {loading_orders && <div>Loading orders...</div>}
-            {error_orders && <div>Failed to load orders</div>}
-            {orders?.orders?.softcopy_orders && (
-              <>
-                <h2 className="pb-3 text-lg font-medium text-zinc-600">
-                  Softcopy Orders
-                </h2>
-                {/* {orders?.orders?.softcopy_orders?.map((order) => (
+              {loading_orders && <div>Loading orders...</div>}
+              {error_orders && <div>Failed to load orders</div>}
+              {orders?.orders?.softcopy_orders && (
+                <>
+                  <h2 className="pb-3 text-lg font-medium text-zinc-600">
+                    Softcopy Orders
+                  </h2>
+                  {/* {orders?.orders?.softcopy_orders?.map((order) => (
                     <SoftCopyOrders key={order._id} order={order} />
                   ))} */}
-                <div className="w-full rounded-lg border p-2 shadow-sm">
-                  <Table className="w-full">
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="hidden text-nowrap sm:table-cell">
-                          S No.
-                        </TableHead>
-                        {/* <TableHead className="hidden md:table-cell">
+                  {orders?.orders?.softcopy_orders?.length === 0 && (
+                    <div className="w-full rounded-lg border p-2 shadow-sm">
+                      <p className="text-center text-gray-500">
+                        No softcopy orders found
+                      </p>
+                    </div>
+                  )}
+                  {orders?.orders?.softcopy_orders?.length > 0 && (
+                    <div className="w-full rounded-lg border p-2 shadow-sm">
+                      <Table className="w-full">
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="hidden text-nowrap sm:table-cell">
+                              S No.
+                            </TableHead>
+                            {/* <TableHead className="hidden md:table-cell">
                             Order
                           </TableHead> */}
-                        <TableHead className="w-full">
-                          Bought Chapters
-                        </TableHead>
-                        <TableHead className="hidden sm:table-cell">
-                          Date
-                        </TableHead>
-                        <TableHead className="text-right">Total</TableHead>
-                        <TableHead className="hidden sm:table-cell">
-                          Status
-                        </TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody className="overflow-x-auto">
-                      {orders?.orders?.softcopy_orders?.map((order, i) => (
-                        <TableRow key={order?._id}>
-                          <TableCell className="hidden sm:table-cell">
-                            {i + 1}
-                          </TableCell>
-                          {/* <TableCell className="hidden font-medium md:table-cell">
+                            <TableHead className="w-full">
+                              Bought Chapters
+                            </TableHead>
+                            <TableHead className="hidden sm:table-cell">
+                              Date
+                            </TableHead>
+                            <TableHead className="text-right">Total</TableHead>
+                            <TableHead className="hidden sm:table-cell">
+                              Status
+                            </TableHead>
+                            <TableHead className="text-right">
+                              Actions
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody className="overflow-x-auto">
+                          {orders?.orders?.softcopy_orders?.map((order, i) => (
+                            <TableRow key={order?._id?.toString()}>
+                              <TableCell className="hidden sm:table-cell">
+                                {i + 1}
+                              </TableCell>
+                              {/* <TableCell className="hidden font-medium md:table-cell">
                               {order?.order_id}
                             </TableCell> */}
-                          <TableCell className="w-full break-all sm:w-full">
-                            {order?.notes
-                              ?.map((note) => note.chapter_name)
-                              .join(", ")
-                              .slice(0, 100)}
-                            {order?.items
-                              ?.map((item) => item?.title)
-                              .join(", ")
-                              .slice(0, 100)}
-                            ...
-                          </TableCell>
-                          <TableCell className="hidden text-nowrap sm:table-cell">
-                            {dayjs(order?.created_at).format("DD MMM YYYY")}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            ₹
-                            {order?.total_amount
-                              ? order?.total_amount
-                              : order?.amount}
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            {order?.payment_status}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button size="icon" variant="ghost">
-                                  <MoreHorizontalIcon className="h-4 w-4" />
-                                  <span className="sr-only">Actions</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
+                              <TableCell className="w-full break-all sm:w-full">
+                                {/* {order?.notes
+                                  ?.map((note) => note.chapter_name)
+                                  .join(", ")
+                                  .slice(0, 100)} */}
+                                {order?.items
+                                  ?.map((item) => item?.title)
+                                  .join(", ")
+                                  .slice(0, 100)}
+                                ...
+                              </TableCell>
+                              <TableCell className="hidden text-nowrap sm:table-cell">
+                                {dayjs(order?.created_at).format("DD MMM YYYY")}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                ₹
+                                {order?.total_amount
+                                  ? order?.total_amount
+                                  : "Not available"}
+                              </TableCell>
+                              <TableCell className="hidden sm:table-cell">
+                                {order?.payment_status}
+                              </TableCell>
+
+                              <TableCell className="text-right">
+                                <NextButton
+                                  colorScheme="badge"
+                                  className="cursor-pointer"
                                   onClick={() => {
                                     setSelectedOrder(order);
+                                    onOpen();
                                   }}
                                 >
                                   View order
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  Customer details
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </>
-            )}
+                                </NextButton>
+                                {/* <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button size="icon" variant="ghost">
+                                      <MoreHorizontalIcon className="h-4 w-4" />
+                                      <span className="sr-only">Actions</span>
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem
+                                      className="cursor-pointer"
+                                      onClick={() => {
+                                        setSelectedOrder(order);
+                                        onOpen();
+                                      }}
+                                    >
+                                      View order
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                      Customer details
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu> */}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </>
+              )}
 
-            {orders?.orders?.hardcopy_orders && (
-              <>
-                <h2 className="py-3 text-lg font-medium text-zinc-600">
-                  Hardcopy Orders
-                </h2>
-                <div className="w-full overflow-x-auto rounded-lg border p-2 shadow-sm">
-                  <Table className="">
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="hidden text-nowrap md:table-cell">
-                          S No.
-                        </TableHead>
-                        {/* <TableHead className="hidden md:table-cell">
+              {orders?.orders?.hardcopy_orders && (
+                <>
+                  <h2 className="py-3 text-lg font-medium text-zinc-600">
+                    Hardcopy Orders
+                  </h2>
+                  {orders?.orders?.hardcopy_orders?.length === 0 && (
+                    <div className="w-full rounded-lg border p-2 shadow-sm">
+                      <p className="text-center text-gray-500">
+                        No hardcopy orders found
+                      </p>
+                    </div>
+                  )}
+                  {orders?.orders?.hardcopy_orders?.length > 0 && (
+                    <div className="w-full overflow-x-auto rounded-lg border p-2 shadow-sm">
+                      <Table className="">
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="hidden text-nowrap md:table-cell">
+                              S No.
+                            </TableHead>
+                            {/* <TableHead className="hidden md:table-cell">
                             Order
                           </TableHead> */}
-                        <TableHead className="">Hardcopy Book</TableHead>
-                        <TableHead className="hidden md:table-cell">
-                          Shipping Details
-                        </TableHead>
-                        {/* <TableHead className="hidden md:table-cell">
+                            <TableHead className="">Hardcopy Book</TableHead>
+                            <TableHead className="hidden md:table-cell">
+                              Shipping Details
+                            </TableHead>
+                            {/* <TableHead className="hidden md:table-cell">
                             Contact Number
                           </TableHead> */}
 
-                        <TableHead className="">Delivery Status</TableHead>
-                        <TableHead className="hidden md:table-cell">
-                          Delivery Date (Expected)
-                        </TableHead>
-                        <TableHead className="text-right">Total</TableHead>
-                        <TableHead className="hidden sm:table-cell">
-                          Status
-                        </TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {orders?.orders?.hardcopy_orders?.map((order, i) => (
-                        <TableRow key={order?._id}>
-                          <TableCell className="hidden md:table-cell">
-                            {i + 1}
-                          </TableCell>
-                          {/* <TableCell className="hidden font-medium md:table-cell">
+                            <TableHead className="">Delivery Status</TableHead>
+                            <TableHead className="hidden md:table-cell">
+                              Delivery Date (Expected)
+                            </TableHead>
+                            <TableHead className="text-right">Total</TableHead>
+                            <TableHead className="hidden sm:table-cell">
+                              Status
+                            </TableHead>
+                            {/* <TableHead className="text-right">
+                              Actions
+                            </TableHead> */}
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {orders?.orders?.hardcopy_orders?.map((order, i) => (
+                            <TableRow key={order?._id}>
+                              <TableCell className="hidden md:table-cell">
+                                {i + 1}
+                              </TableCell>
+                              {/* <TableCell className="hidden font-medium md:table-cell">
                               {order?.order_id}
                             </TableCell> */}
-                          <TableCell className="max-w-[200px]">
-                            {order?.items
-                              ?.map((item) => item?.title)
-                              .join(", ")}
-                          </TableCell>
-                          <TableCell className="hidden max-w-[175px] md:table-cell">
-                            <div>
-                              <p className="text-sm font-semibold">
-                                {order?.shipping_details?.address}
-                              </p>
-                              <p className="text-sm font-semibold">
-                                {order?.shipping_details?.city},{" "}
-                                {order?.shipping_details?.state}
-                                {/* {order?.shipping_details?.pincode} */}
-                                {order?.user_phone}
-                              </p>
-                            </div>
-                          </TableCell>
-                          {/* <TableCell className="hidden md:table-cell">
+                              <TableCell className="max-w-[200px]">
+                                {order?.items
+                                  ?.map((item) => item?.title)
+                                  .join(", ")}
+                              </TableCell>
+                              <TableCell className="hidden max-w-[175px] md:table-cell">
+                                <div>
+                                  <p className="text-sm font-semibold">
+                                    {order?.shipping_details?.address}
+                                  </p>
+                                  <p className="text-sm font-semibold">
+                                    {order?.shipping_details?.city},{" "}
+                                    {order?.shipping_details?.state}
+                                    {/* {order?.shipping_details?.pincode} */}
+                                    {order?.user_phone}
+                                  </p>
+                                </div>
+                              </TableCell>
+                              {/* <TableCell className="hidden md:table-cell">
                               {order?.user_phone}
                             </TableCell> */}
-                          <TableCell>{order?.delivery?.status}</TableCell>
-                          <TableCell className="hidden text-nowrap md:table-cell">
-                            {order?.delivery?.date
-                              ? dayjs(order?.delivery?.date).format(
-                                  "DD MMM YYYY",
-                                )
-                              : "Not available"}
+                              <TableCell>{order?.delivery?.status}</TableCell>
+                              <TableCell className="hidden text-nowrap md:table-cell">
+                                {order?.delivery?.date
+                                  ? dayjs(order?.delivery?.date).format(
+                                      "DD MMM YYYY",
+                                    )
+                                  : "Not available"}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                ₹{order?.total_amount}
+                              </TableCell>
+                              <TableCell className="hidden sm:table-cell">
+                                {order?.payment_status}
+                              </TableCell>
+                              {/* <TableCell className="text-right">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button size="icon" variant="ghost">
+                                      <MoreHorizontalIcon className="h-4 w-4" />
+                                      <span className="sr-only">Actions</span>
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem className="cursor-pointer">
+                                      View order
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                      Customer details
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell> */}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </main>
+        </div>
+      </div>
+      <Modal
+        classNames={{
+          backdrop: "z-[550]",
+          wrapper: "z-[600]",
+        }}
+        size="2xl"
+        backdrop="blur"
+        isOpen={isOpen}
+        onClose={onClose}
+      >
+        <ModalContent>
+          {(onClose: React.MouseEventHandler<HTMLButtonElement>) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                <h2 className="text-lg font-semibold">
+                  Order ID: {selectedOrder?._id?.toString()}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {dayjs(selectedOrder?.created_at).format("DD MMM YYYY")}
+                </p>
+              </ModalHeader>
+              <ModalBody>
+                <FlexContainer variant="column-start">
+                  <div className="flex flex-col gap-2">
+                    <h3 className="text-lg font-semibold">Order Details</h3>
+                    <Table>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-semibold">
+                            Order ID
                           </TableCell>
-                          <TableCell className="text-right">
-                            ₹{order?.total_amount}
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            {order?.payment_status}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button size="icon" variant="ghost">
-                                  <MoreHorizontalIcon className="h-4 w-4" />
-                                  <span className="sr-only">Actions</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    setSelectedOrder(order);
-                                  }}
-                                >
-                                  View order
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  Customer details
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                          <TableCell>
+                            {selectedOrder?._id?.toString()}
                           </TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </>
-            )}
-          </div>
-        </main>
-      </div>
-    </div>
+                        <TableRow>
+                          <TableCell className="font-semibold">
+                            Total Amount
+                          </TableCell>
+                          <TableCell>₹{selectedOrder?.total_amount}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-semibold">
+                            Payment Status
+                          </TableCell>
+                          <TableCell>{selectedOrder?.payment_status}</TableCell>
+                        </TableRow>
+                        {/* <TableRow>
+                          <TableCell className="font-semibold">
+                            Payment Method
+                          </TableCell>
+                          <TableCell>
+                            {selectedOrder?.billing_details?.address}
+                          </TableCell>
+                        </TableRow> */}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <h3 className="text-lg font-semibold">Items</h3>
+                    <Table>
+                      <TableBody>
+                        {selectedOrder?.items?.map((item, i) => (
+                          <TableRow key={i}>
+                            <TableCell className="font-semibold">
+                              {item?.title}
+                            </TableCell>
+                            <TableCell>₹{item?.price}</TableCell>
+                            <TableCell>
+                              <Link
+                                href={
+                                  item?.fullPdf?.url
+                                    ? convertToHttpsLink(item?.fullPdf?.url)
+                                    : "#"
+                                }
+                                target="_blank"
+                                download={item?.fullPdf?.fileName}
+                              >
+                                <NextButton>Download</NextButton>
+                              </Link>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  {/* <div className="flex flex-col gap-2">
+                    <h3 className="text-lg font-semibold">Notes</h3>
+                    <Table>
+                      <TableBody>
+                        {selectedOrder?.notes?.map((note, i) => (
+                          <TableRow key={i}>
+                            <TableCell className="font-semibold">
+                              {note?.chapter_name}
+                            </TableCell>
+                            <TableCell>₹{note?.price}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div> */}
+                </FlexContainer>
+              </ModalBody>
+              <ModalFooter>
+                <NextButton onClick={onClose}>Close</NextButton>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
 

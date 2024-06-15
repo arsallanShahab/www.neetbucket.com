@@ -40,7 +40,7 @@ export function excerpt(text: string, length = 100) {
 }
 
 //check if the image link starts with // if yes then add https: to it
-export function formatImageLink(link: string) {
+export function convertToHttpsLink(link: string) {
   return link.startsWith("//") ? "https:" + link : link;
 }
 

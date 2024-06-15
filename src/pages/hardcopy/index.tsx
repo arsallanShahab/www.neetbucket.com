@@ -4,7 +4,7 @@ import Heading from "@/components/Heading";
 import NextButton from "@/components/NextButton";
 import Wrapper from "@/components/Wrapper";
 import client from "@/lib/contentful";
-import { formatImageLink } from "@/lib/utils";
+import { convertToHttpsLink } from "@/lib/utils";
 import { addItemHardCopy } from "@/redux/slices/cart";
 import { AppDispatch } from "@/redux/store";
 import { HardCopyEntry } from "@/types/contentful/hardcopy";
@@ -28,7 +28,7 @@ const Index = (props: Props) => {
         <Heading variant="h3">Hard Copy</Heading>
         <GridContainer>
           {props?.data?.map((item) => {
-            const thumbnail = formatImageLink(
+            const thumbnail = convertToHttpsLink(
               item?.fields?.chapterThumbnail?.fields?.file?.url,
             );
             return (

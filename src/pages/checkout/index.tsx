@@ -6,7 +6,7 @@ import NextButton from "@/components/NextButton";
 import NextInput from "@/components/NextInput";
 import Wrapper from "@/components/Wrapper";
 import useGet from "@/lib/hooks/get-api";
-import { excerpt, formatImageLink } from "@/lib/utils";
+import { convertToHttpsLink, excerpt } from "@/lib/utils";
 import { clearCart } from "@/redux/slices/cart";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useAuth, useUser } from "@clerk/nextjs";
@@ -178,7 +178,9 @@ const Index = () => {
           id: item.sys.id,
           title: item.fields.heading,
           thumbnail: {
-            url: formatImageLink(item.fields.chapterThumbnail.fields.file.url),
+            url: convertToHttpsLink(
+              item.fields.chapterThumbnail.fields.file.url,
+            ),
             fileName: item.fields.heading,
           },
           quantity: 1,
@@ -398,17 +400,6 @@ const Index = () => {
                 )}
               </Autocomplete> */}
               <AutoComplete
-                label="City"
-                placeholder="Enter your city"
-                showClearButton={true}
-                options={CitiesData.map((state) => ({
-                  name: state.name,
-                  value: state.name,
-                }))}
-                selectedOption={selectedCity}
-                setSelectedOption={setSelectedCity}
-              />
-              <AutoComplete
                 label="State"
                 placeholder="Enter your state"
                 showClearButton={true}
@@ -427,6 +418,23 @@ const Index = () => {
                   setCitiesData(cities);
                 }}
               />
+              <AutoComplete
+                label="City"
+                placeholder="Enter your city"
+                showClearButton={true}
+                options={CitiesData.map((state) => ({
+                  name: state.name,
+                  value: state.name,
+                }))}
+                selectedOption={selectedCity}
+                setSelectedOption={setSelectedCity}
+                onSelectionChange={(option) => {
+                  if (selectedState?.name === null) {
+                    toast.error("Please select a state first");
+                    return;
+                  }
+                }}
+              />
             </GridContainer>
 
             <Heading variant="h5">
@@ -440,7 +448,7 @@ const Index = () => {
             <GridContainer gap="md" className="custom_scrollbar lg:grid-cols-2">
               {order_type === "softcopy" &&
                 softcopy_items?.map((item) => {
-                  const thumbnailUrl = formatImageLink(
+                  const thumbnailUrl = convertToHttpsLink(
                     item.fields.chapterThumbnail.fields.file.url,
                   );
                   return (
@@ -471,7 +479,7 @@ const Index = () => {
                 })}
               {order_type === "hardcopy" &&
                 hardcopy_items.map((item) => {
-                  const thumbnailUrl = formatImageLink(
+                  const thumbnailUrl = convertToHttpsLink(
                     item.fields.chapterThumbnail.fields.file.url,
                   );
                   return (

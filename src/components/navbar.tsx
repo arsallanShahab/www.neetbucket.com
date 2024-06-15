@@ -1,7 +1,7 @@
 "use client";
 
 import { SoftCopyChapter } from "@/lib/types";
-import { cn, excerpt, formatImageLink } from "@/lib/utils";
+import { cn, convertToHttpsLink, excerpt } from "@/lib/utils";
 import { removeItem, toggleCart } from "@/redux/slices/cart";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useClerk, useUser } from "@clerk/nextjs";
@@ -262,7 +262,7 @@ const Navbar = (props: Props) => {
 const CartItem: FC<SoftCopyChapter> = (props) => {
   // const {} = useSelector((state: RootState) => state.cart);
   const dispatch = useDispatch<AppDispatch>();
-  const imageUrl = formatImageLink(
+  const imageUrl = convertToHttpsLink(
     props?.fields?.chapterThumbnail?.fields?.file?.url,
   );
 

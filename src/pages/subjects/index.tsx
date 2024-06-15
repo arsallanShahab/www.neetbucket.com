@@ -4,7 +4,7 @@ import Heading from "@/components/Heading";
 import Wrapper from "@/components/Wrapper";
 import client from "@/lib/contentful";
 import { Subject } from "@/lib/types";
-import { formatImageLink } from "@/lib/utils";
+import { convertToHttpsLink } from "@/lib/utils";
 import { BreadcrumbItem, Breadcrumbs, Button } from "@nextui-org/react";
 import { EntryCollection } from "contentful";
 import { ChevronRight } from "lucide-react";
@@ -33,7 +33,7 @@ const Index = ({ subjects }: IndexProps) => {
                 ? "https:" + subject.fields.teacherImage.fields.file.url
                 : subject.fields.teacherImage.fields.file.url;
 
-            const imgUrl = formatImageLink(
+            const imgUrl = convertToHttpsLink(
               subject.fields.teacherImage.fields.file.url,
             );
             return (

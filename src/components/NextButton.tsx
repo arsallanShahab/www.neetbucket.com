@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@nextui-org/react";
 import { Loader2 } from "lucide-react";
-import { forwardRef } from "react";
+import React, { forwardRef } from "react";
 
 interface NextButtonProps {
   type?: "button" | "submit" | "reset";
   href?: string;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
   className?: string;
   children: React.ReactNode;
