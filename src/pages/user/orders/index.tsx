@@ -60,6 +60,25 @@ export interface ISoftCopy extends SoftCopyOrder {
   amount: number;
 }
 
+interface SC extends WithId<SoftCopyOrder> {
+  notes: {
+    demo_pdf_id: string;
+    chapter_name: string;
+    teacher_name: string;
+    subject_name: string;
+    keyPoints: string[];
+    class: string;
+    price: number;
+    quantity: number;
+    thumbnail: string;
+    full_pdf: {
+      url: string;
+      fileSize: number;
+    };
+  }[];
+  amount: number;
+}
+
 export interface IHardCopy extends HardCopyOrder {
   _id: string;
 }
@@ -70,8 +89,7 @@ export default function Index() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const [selectedOrder, setSelectedOrder] =
-    useState<WithId<SoftCopyOrder> | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<SC | null>(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -135,7 +153,7 @@ export default function Index() {
   } = useGet<{
     success: boolean;
     orders: {
-      softcopy_orders: WithId<SoftCopyOrder>[];
+      softcopy_orders: SC[];
       hardcopy_orders: IHardCopy[];
     };
   }>({
@@ -246,10 +264,10 @@ export default function Index() {
                               {order?.order_id}
                             </TableCell> */}
                               <TableCell className="w-full break-all sm:w-full">
-                                {/* {order?.notes
+                                {order?.notes
                                   ?.map((note) => note.chapter_name)
                                   .join(", ")
-                                  .slice(0, 100)} */}
+                                  .slice(0, 100)}
                                 {order?.items
                                   ?.map((item) => item?.title)
                                   .join(", ")
@@ -263,7 +281,7 @@ export default function Index() {
                                 ₹
                                 {order?.total_amount
                                   ? order?.total_amount
-                                  : "Not available"}
+                                  : order?.amount}
                               </TableCell>
                               <TableCell className="hidden sm:table-cell">
                                 {order?.payment_status}
@@ -513,10 +531,30 @@ export default function Index() {
                             </TableCell>
                           </TableRow>
                         ))}
+                        {selectedOrder?.notes?.map((note, i) => (
+                          <TableRow key={i}>
+                            <TableCell className="font-semibold">
+                              {note?.chapter_name}
+                            </TableCell>
+                            <TableCell>
+                              <Link
+                                href={
+                                  note?.full_pdf?.url
+                                    ? convertToHttpsLink(note?.full_pdf?.url)
+                                    : "#"
+                                }
+                                target="_blank"
+                                download={note?.chapter_name}
+                              >
+                                <NextButton>Download</NextButton>
+                              </Link>
+                            </TableCell>
+                          </TableRow>
+                        ))}
                       </TableBody>
                     </Table>
                   </div>
-                  {/* <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2">
                     <h3 className="text-lg font-semibold">Notes</h3>
                     <Table>
                       <TableBody>
@@ -530,7 +568,7 @@ export default function Index() {
                         ))}
                       </TableBody>
                     </Table>
-                  </div> */}
+                  </div>
                 </FlexContainer>
               </ModalBody>
               <ModalFooter>
