@@ -34,6 +34,7 @@ const Index = (props: Props) => {
             return (
               <FlexContainer
                 variant="column-start"
+                wrap="nowrap"
                 key={item.sys.id}
                 className="p-3"
               >

@@ -81,13 +81,13 @@ const Navbar = (props: Props) => {
         <Link href={"/"}>
           <Logo height="25px" />
         </Link>
-        <ShadcnButton
+        {/* <ShadcnButton
           onClick={handleMenuOpen}
           variant="secondary"
           className="ml-auto text-xs sm:hidden"
         >
           Menu
-        </ShadcnButton>
+        </ShadcnButton> */}
         {menuOpen && (
           <nav
             ref={navRef}
@@ -113,7 +113,7 @@ const Navbar = (props: Props) => {
           </nav>
         )}
       </div>
-      <div className="flex w-full flex-col items-center justify-end gap-y-5 sm:gap-5 md:w-auto md:flex-row">
+      <div className="flex w-auto flex-row items-center justify-end gap-y-5 sm:gap-5">
         {menuOpen && (
           <Input
             type="text"
@@ -129,7 +129,7 @@ const Navbar = (props: Props) => {
             }
           />
         )}
-        <div className="flex w-full flex-row-reverse items-center justify-between gap-2.5 sm:flex-row sm:gap-5">
+        <div className="flex w-full flex-row items-center justify-end gap-5">
           {" "}
           <div className="flex items-center justify-between gap-2.5 sm:gap-5">
             <ShadcnButton
@@ -218,7 +218,7 @@ const Navbar = (props: Props) => {
               // },
             }}
             // layout="position"
-            className="fixed right-5 top-36 z-[900] w-full max-w-[22rem] origin-top-right overflow-hidden rounded-2xl border bg-white p-0 shadow-xl *:w-full sm:right-28 sm:top-24 sm:origin-top"
+            className="fixed right-5 top-24 z-[900] w-full max-w-[22rem] origin-top-right overflow-hidden rounded-2xl border bg-white p-0 shadow-xl *:w-full sm:right-28 sm:top-24 sm:origin-top"
           >
             <FlexContainer
               variant="column-start"
