@@ -45,8 +45,10 @@ const Index = () => {
   const { isLoaded, isSignedIn, user } = useUser();
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [CitiesData, setCitiesData] = useState<ICity[]>([]);
-  const [selectedState, setSelectedState] = useState<Option | null>(null);
-  const [selectedCity, setSelectedCity] = useState<Option | null>(null);
+  // const [selectedState, setSelectedState] = useState<Option | null>(null);
+  const [state, setState] = useState<React.Key>("");
+  const [city, setCity] = useState<React.Key>("");
+  // const [selectedCity, setSelectedCity] = useState<Option | null>(null);
 
   const [paymentMethod, setPaymentMethod] = useState<Selection>(
     new Set(["online"]),
@@ -74,9 +76,15 @@ const Index = () => {
     state: "",
   });
 
-  console.log(selectedState);
+  // console.log(selectedState);
+  // console.log(state, "state");
+  // console.log(city, "city");
 
   const handlePlaceOrder = useCallback(async () => {
+    const s = StatesData.find((s) => s.isoCode === state);
+    console.log(s?.name, "state");
+    console.log(city, "city");
+    // return;
     if (!formData.name) {
       toast.error("Please enter your name");
       return;
@@ -93,11 +101,11 @@ const Index = () => {
       toast.error("Please enter your address");
       return;
     }
-    if (!selectedCity?.name) {
+    if (!city) {
       toast.error("Please enter your city");
       return;
     }
-    if (!selectedState?.name) {
+    if (!state) {
       toast.error("Please enter your state");
       return;
     }
@@ -105,14 +113,14 @@ const Index = () => {
       toast.error("Please select a payment method");
       return;
     }
-    const state = StatesData.find(
-      (state) => state.isoCode === selectedState?.value,
-    );
+    // const state = StatesData.find(
+    //   (state) => state.isoCode === selectedState?.value,
+    // );
     if (order_type === "softcopy") {
       const orderData = {
         ...formData,
-        city: selectedCity?.name,
-        state: selectedState?.name,
+        city: city,
+        state: s?.name || (state as string),
         paymentMethod: Array.from(paymentMethod).toString(),
         items: softcopy_items,
         total_amount: total_amount_softcopy,
@@ -154,8 +162,8 @@ const Index = () => {
           notes: {
             name: formData.name,
             address: formData.address,
-            city: selectedCity?.name,
-            state: state?.name || selectedState?.name,
+            city: city,
+            state: s?.name || (state as string),
             order_id: data.order_id,
             order_type: "softcopy",
           },
@@ -189,8 +197,8 @@ const Index = () => {
       });
       const orderData = {
         ...formData,
-        city: selectedCity?.name,
-        state: selectedState?.name,
+        city: city,
+        state: s?.name || (state as string),
         paymentMethod: Array.from(paymentMethod).toString(),
         items: mappedItems,
         total_amount: total_amount_hardcopy,
@@ -233,8 +241,8 @@ const Index = () => {
           notes: {
             name: formData.name,
             address: formData.address,
-            city: selectedCity?.name,
-            state: state?.name || selectedState?.name,
+            city: city,
+            state: s?.name || (state as string),
             delivery_status: "pending",
             order_id: data.order_id,
             order_type: "hardcopy",
@@ -256,13 +264,19 @@ const Index = () => {
   }, [
     Razorpay,
     formData,
-    selectedState,
-    selectedCity,
+    state,
+    city,
     paymentMethod,
     softcopy_items,
     total_amount_softcopy,
     total_items_softcopy,
   ]);
+
+  useEffect(() => {
+    const cities = City.getCitiesOfState("IN", state as string);
+    setCitiesData(cities);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
@@ -399,7 +413,43 @@ const Index = () => {
                   </AutocompleteItem>
                 )}
               </Autocomplete> */}
-              <AutoComplete
+              <Autocomplete
+                label="State"
+                labelPlacement="outside"
+                variant="flat"
+                defaultItems={StatesData.map((state) => ({
+                  label: state.name,
+                  value: state.isoCode,
+                }))}
+                placeholder="Search your state"
+                selectedKey={state as string}
+                onSelectionChange={setState}
+              >
+                {(item) => (
+                  <AutocompleteItem key={item.value}>
+                    {item.label}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
+              <Autocomplete
+                label="City"
+                labelPlacement="outside"
+                variant="flat"
+                defaultItems={CitiesData.map((city) => ({
+                  label: city.name,
+                  value: city.name,
+                }))}
+                placeholder="Search your city"
+                selectedKey={city as string}
+                onSelectionChange={setCity}
+              >
+                {(item) => (
+                  <AutocompleteItem key={item.value}>
+                    {item.label}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
+              {/* <AutoComplete
                 label="State"
                 placeholder="Enter your state"
                 showClearButton={true}
@@ -417,8 +467,8 @@ const Index = () => {
                   setSelectedState(option);
                   setCitiesData(cities);
                 }}
-              />
-              <AutoComplete
+              /> */}
+              {/* <AutoComplete
                 label="City"
                 placeholder="Enter your city"
                 showClearButton={true}
@@ -434,7 +484,7 @@ const Index = () => {
                     return;
                   }
                 }}
-              />
+              /> */}
             </GridContainer>
 
             <Heading variant="h5">
