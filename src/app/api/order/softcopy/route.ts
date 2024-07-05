@@ -3,7 +3,7 @@ import { generateReceipt } from "@/lib/utils";
 import { WithoutId } from "mongodb";
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
-import { IMongoDBChapter } from "../../webhook/contentful/add-to-mongodb/route";
+import { IMongoDBChapter } from "../../webhook/contentful/add-to-mongodb/route.ts.ignore";
 
 const instance = new Razorpay({
   key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
