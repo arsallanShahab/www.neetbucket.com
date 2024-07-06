@@ -152,8 +152,10 @@ export const getStaticPaths = async () => {
 //fetch data from contentful for dynamic routes
 export const getStaticProps = async (ctx: GetStaticPropsContext) => {
   const query = ctx.params?.slug as string;
-  const [slug, id] = query?.split("-");
-  console.log(slug, "slug");
+  const pathname = query?.split("-");
+  // console.log(slug, "slug");
+  // console.log(id, "id");
+  const id = pathname[pathname.length - 1];
   console.log(id, "id");
   let data: [];
   try {

@@ -6,6 +6,7 @@ import { removeItem, toggleCart } from "@/redux/slices/cart";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useClerk, useUser } from "@clerk/nextjs";
 import {
+  Avatar,
   Divider,
   Dropdown,
   DropdownItem,
@@ -43,6 +44,8 @@ const Navbar = (props: Props) => {
   const { signOut } = useClerk();
   const navRef = useRef<HTMLDivElement>(null);
   const { width } = useWindowSize();
+
+  const user_name = user?.firstName + " " + user?.lastName;
 
   const ref = useClickAway(() => {
     dispatch(toggleCart());
@@ -147,18 +150,7 @@ const Navbar = (props: Props) => {
           {isSignedIn && isLoaded ? (
             <Dropdown>
               <DropdownTrigger className="cursor-pointer">
-                <User
-                  name={user?.firstName + " " + user?.lastName}
-                  description={
-                    user?.primaryEmailAddress?.emailAddress?.length ?? 0 > 20
-                      ? user?.primaryEmailAddress?.emailAddress?.slice(0, 20) +
-                        "..."
-                      : user?.primaryEmailAddress?.emailAddress
-                  }
-                  avatarProps={{
-                    src: user.imageUrl,
-                  }}
-                />
+                <Avatar src={user.imageUrl} size="md" />
               </DropdownTrigger>
               <DropdownMenu aria-label="Static Actions">
                 <DropdownItem onClick={() => router.push("/user/profile")}>
