@@ -15,6 +15,8 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import { GetStaticPropsContext } from "next";
 import Image from "next/image";
@@ -58,7 +60,32 @@ const Index = (props: Props) => {
               {props.data[0].fields.subject.fields.subjectName}
             </Heading>
           </FlexContainer>
-          <Dropdown>
+          <div className="flex w-full items-center justify-end md:w-auto">
+            <Select
+              label="Select Class"
+              placeholder="Select Class"
+              radius="sm"
+              classNames={{
+                label: "font-medium text-zinc-900",
+                trigger: "border shadow-none w-64",
+              }}
+              items={[
+                { label: "Both 11 & 12", value: "11 & 12" },
+                { label: "Class XI", value: "11" },
+                { label: "Class XII", value: "12" },
+              ]}
+              onChange={(e) => {
+                setShowBy(e.target.value);
+              }}
+              selectionMode="single"
+              selectedKeys={showBy ? [showBy] : []}
+            >
+              {(item) => (
+                <SelectItem key={item?.value}>{item?.label}</SelectItem>
+              )}
+            </Select>
+          </div>
+          {/* <Dropdown>
             <DropdownTrigger>
               <Button color="primary">Class {showBy}</Button>
             </DropdownTrigger>
@@ -78,7 +105,7 @@ const Index = (props: Props) => {
                 </DropdownItem>
               )}
             </DropdownMenu>
-          </Dropdown>
+          </Dropdown> */}
         </FlexContainer>
         {(showBy === "11" || showBy === "11 & 12") && (
           <>
@@ -153,7 +180,9 @@ export const getStaticProps = async (ctx: GetStaticPropsContext) => {
 };
 
 const Chapter = ({ chapter }: { chapter: SoftCopyChapter }) => {
-  const { isCartOpen, softcopy_items: items } = useSelector((state: RootState) => state.cart);
+  const { isCartOpen, softcopy_items: items } = useSelector(
+    (state: RootState) => state.cart,
+  );
   const isInCart = items?.some((item) => item.sys.id === chapter.sys.id);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -175,7 +204,7 @@ const Chapter = ({ chapter }: { chapter: SoftCopyChapter }) => {
     dispatch(addItem(chapter));
   };
   return (
-    <div className="flex flex-col items-start justify-start gap-5 rounded-2xl p-3 *:w-full">
+    <div className="flex flex-col items-start justify-start gap-3 rounded-2xl bg-zinc-100 p-3 *:w-full">
       <Image
         src={thumbnail}
         alt="chapter"
@@ -184,14 +213,14 @@ const Chapter = ({ chapter }: { chapter: SoftCopyChapter }) => {
         className="h-[200px] w-full rounded-xl object-cover shadow-small"
       />
       <div className="p-1.5">
-        <h3 className="font-work-sans text-xl font-medium text-slate-950">
+        <h3 className="font-work-sans text-2xl font-medium text-slate-950">
           {chapter.fields.chapterName}
         </h3>
-        <div className="mt-5 flex w-full gap-3">
+        <div className="mt-3 flex w-full gap-3">
           <Button
             color="primary"
             radius="sm"
-            className="w-full flex-1 px-2 font-medium"
+            className="w-full flex-1 bg-violet-500 px-2 font-medium"
             onClick={() => router.push(link)}
           >
             View
@@ -199,7 +228,7 @@ const Chapter = ({ chapter }: { chapter: SoftCopyChapter }) => {
           <Button
             color="primary"
             radius="sm"
-            className="w-full flex-1 bg-zinc-100 px-2 font-medium text-zinc-950"
+            className="w-full flex-1 bg-white px-2 font-medium text-zinc-950"
             onClick={handleAddToCart}
           >
             {isInCart ? "Remove from cart" : "Add to cart"}

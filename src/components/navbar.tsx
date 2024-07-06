@@ -148,8 +148,13 @@ const Navbar = (props: Props) => {
             <Dropdown>
               <DropdownTrigger className="cursor-pointer">
                 <User
-                  name={user.firstName}
-                  description={user.primaryEmailAddress?.emailAddress}
+                  name={user?.firstName + " " + user?.lastName}
+                  description={
+                    user?.primaryEmailAddress?.emailAddress?.length ?? 0 > 20
+                      ? user?.primaryEmailAddress?.emailAddress?.slice(0, 20) +
+                        "..."
+                      : user?.primaryEmailAddress?.emailAddress
+                  }
                   avatarProps={{
                     src: user.imageUrl,
                   }}

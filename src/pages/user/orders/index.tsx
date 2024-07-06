@@ -33,7 +33,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import dayjs from "dayjs";
-import { MailIcon, MoreHorizontalIcon, PhoneIcon } from "lucide-react";
+import { Loader2, MailIcon, MoreHorizontalIcon, PhoneIcon } from "lucide-react";
 import { Document, WithId } from "mongodb";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -157,7 +157,7 @@ export default function Index() {
       hardcopy_orders: IHardCopy[];
     };
   }>({
-    showToast: true,
+    showToast: false,
   });
 
   useEffect(() => {
@@ -211,7 +211,14 @@ export default function Index() {
             <div className="flex flex-col items-start justify-start gap-2 rounded-lg *:w-full">
               <h2 className="font-rubik text-4xl font-semibold">Orders</h2>
 
-              {loading_orders && <div>Loading orders...</div>}
+              {loading_orders && (
+                <FlexContainer
+                  variant="column-center"
+                  className="p-5 font-medium"
+                >
+                  <Loader2 className="h-7 w-7 animate-spin" /> Loading orders...
+                </FlexContainer>
+              )}
               {error_orders && <div>Failed to load orders</div>}
               {orders?.orders?.softcopy_orders && (
                 <>

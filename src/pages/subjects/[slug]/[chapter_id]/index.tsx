@@ -20,7 +20,9 @@ type Props = {
 };
 
 const Index = (props: Props) => {
-  const { softcopy_items: items, isCartOpen } = useSelector((state: RootState) => state.cart);
+  const { softcopy_items: items, isCartOpen } = useSelector(
+    (state: RootState) => state.cart,
+  );
   const isInCart = items?.some((item) => item.sys.id === props.data.sys.id);
   const [pointsVisible, setPointsVisible] = useState<boolean>(false);
 
@@ -57,12 +59,12 @@ const Index = (props: Props) => {
         </Breadcrumbs>
         <FlexContainer
           variant="row-center"
-          className="w-full items-start gap-0"
-          wrap="wrap"
+          className="w-full flex-wrap items-start gap-4 md:flex-nowrap"
+          // wrap="wrap"
         >
           <div className="basis-full sm:basis-1/3 md:basis-1/2">
-            <GridContainer className="gap-x-5 *:rounded-xl *:border md:grid-cols-1 lg:grid-cols-2">
-              <Image
+            <GridContainer className="grid-cols-2 gap-x-5 *:rounded-xl *:border lg:grid-cols-2">
+              {/* <Image
                 width={950}
                 height={950}
                 className="h-full max-h-[500px] w-full object-cover object-top hover:shadow-2xl"
@@ -75,7 +77,7 @@ const Index = (props: Props) => {
                       props.data.fields.chapterThumbnail.fields.file.url
                     : props.data.fields.chapterThumbnail.fields.file.url
                 }
-              />
+              /> */}
               {props.data.fields.demoImages?.map((image, i) => (
                 <Image
                   key={image.sys.id}
@@ -84,7 +86,7 @@ const Index = (props: Props) => {
                   className={cn(
                     "h-full max-h-[400px] w-full object-cover object-top duration-200 hover:shadow-2xl",
                     i === props.data.fields.demoImages.length - 1 &&
-                      (props.data.fields.demoImages.length + 1) % 2 == 1 &&
+                      props.data.fields.demoImages.length % 2 == 1 &&
                       "col-span-full h-full w-full object-cover",
                   )}
                   alt={props.data.fields.chapterName}
@@ -97,7 +99,7 @@ const Index = (props: Props) => {
               ))}
             </GridContainer>
           </div>
-          <div className="relative basis-full pl-10 sm:sticky sm:top-56 sm:basis-2/3 md:top-28 md:basis-1/2">
+          <div className="relative basis-full sm:sticky sm:top-56 sm:basis-2/3 md:top-28 md:basis-1/2 md:pl-10">
             <FlexContainer variant="column-start">
               <Heading variant="h3">{props?.data?.fields?.chapterName}</Heading>
               {props?.data?.fields?.keyPoints?.length > 0 && (
@@ -151,24 +153,27 @@ const Index = (props: Props) => {
                 </FlexContainer>
               )}
               <GridContainer>
-                <div className="justify-center rounded-2xl border bg-zinc-800 px-5 py-3 text-center text-xs font-medium text-white">
+                <div className="justify-center rounded-xl border bg-zinc-800 px-5 py-3 text-center text-xs font-medium text-white">
                   High Quality Scans
                 </div>
-                <div className="justify-center rounded-2xl border bg-zinc-800 px-5 py-3 text-center text-xs font-medium text-white">
+                <div className="justify-center rounded-xl border bg-zinc-800 px-5 py-3 text-center text-xs font-medium text-white">
                   24/7 Support
                 </div>
-                <div className="justify-center rounded-2xl border bg-zinc-800 px-5 py-3 text-center text-xs font-medium text-white">
+                <div className="justify-center rounded-xl border bg-zinc-800 px-5 py-3 text-center text-xs font-medium text-white">
                   100% Secure Payment
                 </div>
               </GridContainer>
-              <FlexContainer variant="row-between" className="gap-3 md:gap-0">
+              <FlexContainer
+                variant="row-between"
+                className="flex-wrap gap-3 md:flex-nowrap"
+              >
                 <button
                   onClick={handleAddToCart}
-                  className="text-md basis-full rounded-xl border bg-white px-5 py-6 text-center font-medium text-black duration-100 hover:bg-zinc-50 md:basis-1/2 md:rounded-l-xl md:border-r-0"
+                  className="text-md basis-full rounded-xl border bg-zinc-400 px-5 py-6 text-center font-medium text-white duration-100 hover:bg-zinc-500 active:scale-95 md:basis-1/2 md:rounded-l-xl md:border-r-0"
                 >
                   {isInCart ? "Remove from Cart" : "Add to Cart"}
                 </button>
-                <button className="text-md basis-full rounded-xl border border-amber-50 bg-amber-500 px-5 py-6 text-center font-medium text-white duration-100 hover:bg-amber-400 md:basis-1/2 md:rounded-r-xl md:border-l-0">
+                <button className="text-md basis-full rounded-xl border border-amber-50 bg-amber-500 px-5 py-6 text-center font-medium text-white duration-100 hover:bg-amber-400 active:scale-95 md:basis-1/2 md:rounded-r-xl md:border-l-0">
                   Buy Now
                 </button>
               </FlexContainer>
