@@ -85,7 +85,7 @@ const Heading: FC<Props> = ({ children, className, variant = "body1" }) => {
       className: cn(typographyStyles[variant], className),
     },
     <div className="flex items-center justify-start gap-2.5">
-      {showIcon && <div className="h-4 w-1 rounded-xl bg-green-500"></div>}
+      {/* {showIcon && <div className="h-4 w-1 rounded-xl bg-green-500"></div>} */}
       {/* {!showIcon && <div className="h-4 w-1 rounded-xl bg-zinc-300"></div>} */}
       {children}
     </div>,

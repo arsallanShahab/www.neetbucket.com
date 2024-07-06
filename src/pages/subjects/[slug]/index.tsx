@@ -56,7 +56,7 @@ const Index = (props: Props) => {
                 {props.data[0].fields.subject.fields.subjectName}
               </BreadcrumbItem>
             </Breadcrumbs>
-            <Heading variant="h2">
+            <Heading variant="h3">
               {props.data[0].fields.subject.fields.subjectName}
             </Heading>
           </FlexContainer>
@@ -67,7 +67,7 @@ const Index = (props: Props) => {
               radius="sm"
               classNames={{
                 label: "font-medium text-zinc-900",
-                trigger: "border shadow-none w-64",
+                trigger: "border shadow-none min-w-[150px]",
               }}
               items={[
                 { label: "Both 11 & 12", value: "11 & 12" },

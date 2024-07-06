@@ -7,7 +7,7 @@ import { SoftCopyChapter, Subject } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { addItem, removeItem, toggleCart } from "@/redux/slices/cart";
 import { AppDispatch, RootState } from "@/redux/store";
-import { BreadcrumbItem, Breadcrumbs } from "@nextui-org/react";
+import { BreadcrumbItem, Breadcrumbs, Divider } from "@nextui-org/react";
 import { useToggle } from "@uidotdev/usehooks";
 import { Entry, EntryCollection } from "contentful";
 import { GetStaticPropsContext } from "next";
@@ -99,7 +99,7 @@ const Index = (props: Props) => {
               ))}
             </GridContainer>
           </div>
-          <div className="relative basis-full sm:sticky sm:top-56 sm:basis-2/3 md:top-28 md:basis-1/2 md:pl-10">
+          <div className="relative basis-full pb-10 sm:sticky sm:top-56 sm:basis-2/3 md:top-28 md:basis-1/2 md:pb-0 md:pl-10">
             <FlexContainer variant="column-start">
               <Heading variant="h3">{props?.data?.fields?.chapterName}</Heading>
               {props?.data?.fields?.keyPoints?.length > 0 && (
@@ -152,30 +152,25 @@ const Index = (props: Props) => {
                   </div>
                 </FlexContainer>
               )}
-              <GridContainer>
-                <div className="justify-center rounded-xl border bg-zinc-800 px-5 py-3 text-center text-xs font-medium text-white">
-                  High Quality Scans
-                </div>
-                <div className="justify-center rounded-xl border bg-zinc-800 px-5 py-3 text-center text-xs font-medium text-white">
-                  24/7 Support
-                </div>
-                <div className="justify-center rounded-xl border bg-zinc-800 px-5 py-3 text-center text-xs font-medium text-white">
-                  100% Secure Payment
-                </div>
-              </GridContainer>
+
               <FlexContainer
                 variant="row-between"
                 className="flex-wrap gap-3 md:flex-nowrap"
               >
                 <button
                   onClick={handleAddToCart}
-                  className="text-md basis-full rounded-xl border bg-zinc-400 px-5 py-6 text-center font-medium text-white duration-100 hover:bg-zinc-500 active:scale-95 md:basis-1/2 md:rounded-l-xl md:border-r-0"
+                  className="text-md basis-full rounded-xl border bg-zinc-400 px-5 py-5 text-center font-medium text-white duration-100 hover:bg-zinc-500 active:scale-95 md:basis-1/2 md:rounded-l-xl md:border-r-0"
                 >
                   {isInCart ? "Remove from Cart" : "Add to Cart"}
                 </button>
-                <button className="text-md basis-full rounded-xl border border-amber-50 bg-amber-500 px-5 py-6 text-center font-medium text-white duration-100 hover:bg-amber-400 active:scale-95 md:basis-1/2 md:rounded-r-xl md:border-l-0">
+                <button className="text-md basis-full rounded-xl border border-green-50 bg-green-500 px-5 py-5 text-center font-medium text-white duration-100 hover:bg-green-400 active:scale-95 md:basis-1/2 md:rounded-r-xl md:border-l-0">
                   Buy Now
                 </button>
+              </FlexContainer>
+              <FlexContainer className="relative flex items-center text-xs font-medium *:flex-1 *:p-2 *:text-center">
+                <div className="">High Quality Scans</div>
+                <div className="">24/7 Support</div>
+                <div className="">100% Secure Payment</div>
               </FlexContainer>
             </FlexContainer>
           </div>

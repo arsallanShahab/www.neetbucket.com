@@ -21,7 +21,7 @@ import { Loader2, Search, ShoppingCart, Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FC, RefObject, useEffect, useRef, useState } from "react";
+import { FC, LegacyRef, RefObject, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import FlexContainer from "./FlexContainer";
 import { useGlobalContext } from "./context-provider";
@@ -44,16 +44,12 @@ const Navbar = (props: Props) => {
   const { signOut } = useClerk();
   const navRef = useRef<HTMLDivElement>(null);
   const { width } = useWindowSize();
-
-  const user_name = user?.firstName + " " + user?.lastName;
+  const [isClicked, setIsClicked] = useState<boolean>(false);
+  const cartButtonRef = useRef<HTMLDivElement>(null);
 
   const ref = useClickAway(() => {
     dispatch(toggleCart());
   });
-
-  const handleMenuOpen = () => {
-    dispatch(toggleCart());
-  };
 
   useEffect(() => {
     if (width && width > 640) {
@@ -71,6 +67,24 @@ const Navbar = (props: Props) => {
       );
     }
   }, [navRef]);
+
+  useEffect(() => {
+    //add a event handler and check for the click event if the click event is outside the cart then close the cart
+    const handleClick = (e: MouseEvent) => {
+      if (
+        cartButtonRef &&
+        !cartButtonRef.current?.contains(e.target as Node) &&
+        !ref.current?.contains(e.target as Node)
+      ) {
+        setIsClicked(false);
+      }
+    };
+    document.addEventListener("click", handleClick);
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCartOpen]);
 
   return (
     <div
@@ -134,10 +148,14 @@ const Navbar = (props: Props) => {
         )}
         <div className="flex w-full flex-row items-center justify-end gap-5">
           {" "}
-          <div className="flex items-center justify-between gap-2.5 sm:gap-5">
+          <div
+            ref={cartButtonRef}
+            className="flex items-center justify-between gap-2.5 sm:gap-5"
+          >
             <ShadcnButton
               variant="outline"
-              onClick={() => dispatch(toggleCart())}
+              data-cart-id="cart"
+              onClick={(e) => setIsClicked(!isClicked)}
               className="relative h-auto px-2"
             >
               <span className="absolute -right-2.5 -top-2.5 rounded-full bg-danger px-2 py-1 text-xs font-medium text-white shadow-xl shadow-rose-400">
@@ -185,7 +203,7 @@ const Navbar = (props: Props) => {
         </div>
       </div>
       <AnimatePresence>
-        {isCartOpen && (
+        {isClicked && (
           <motion.div
             ref={ref as RefObject<HTMLDivElement>}
             transition={{
