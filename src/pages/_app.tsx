@@ -18,6 +18,7 @@ import { SocialIcon } from "react-social-icons";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
+  const GA_MEASUREMENT_ID = "G-33KP1TNFDZ";
   return (
     <ClerkProvider
       appearance={{
@@ -54,6 +55,10 @@ function MyApp({ Component, pageProps }: AppProps) {
           />
         </FlexContainer>
       </Providers>
+      <script
+        async
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+      />
     </ClerkProvider>
   );
 }

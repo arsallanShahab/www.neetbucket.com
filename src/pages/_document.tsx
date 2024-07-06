@@ -13,17 +13,12 @@ class MyDocument extends Document {
   }
 
   render() {
-    const GA_MEASUREMENT_ID = "G-33KP1TNFDZ";
     return (
       <Html>
         <Head>{/* Add your custom head elements here */}</Head>
         <body>
           <Main />
           <NextScript />
-          <script
-            async
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-          />
         </body>
       </Html>
     );
