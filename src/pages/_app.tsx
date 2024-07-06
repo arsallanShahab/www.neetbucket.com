@@ -1,3 +1,4 @@
+import FlexContainer from "@/components/FlexContainer";
 import Navbar from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import "@/styles/globals.css";
@@ -10,8 +11,10 @@ import {
   shadesOfPurple,
 } from "@clerk/themes";
 import type { AppProps } from "next/app";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { Toaster } from "react-hot-toast";
+import { SocialIcon } from "react-social-icons";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -43,6 +46,12 @@ function MyApp({ Component, pageProps }: AppProps) {
             },
           }}
         />
+        <FlexContainer className="fixed bottom-5 right-5">
+          <SocialIcon
+            url={"https://web.whatsapp.com/send?phone=+918100517624"}
+            target="_blank"
+          />
+        </FlexContainer>
       </Providers>
     </ClerkProvider>
   );

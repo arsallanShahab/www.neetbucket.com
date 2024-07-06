@@ -207,13 +207,15 @@ const Chapter = ({ chapter }: { chapter: SoftCopyChapter }) => {
   };
   return (
     <div className="flex flex-col items-start justify-start gap-3 rounded-2xl bg-zinc-100 p-3 *:w-full">
-      <Image
-        src={thumbnail}
-        alt="chapter"
-        width={500}
-        height={500}
-        className="h-[200px] w-full rounded-xl object-cover shadow-small"
-      />
+      <Link href={link}>
+        <Image
+          src={thumbnail}
+          alt="chapter"
+          width={500}
+          height={500}
+          className="h-[200px] w-full rounded-xl object-cover object-top shadow-small"
+        />
+      </Link>
       <div className="p-1.5">
         <h3 className="font-work-sans text-2xl font-medium text-slate-950">
           {chapter.fields.chapterName}
