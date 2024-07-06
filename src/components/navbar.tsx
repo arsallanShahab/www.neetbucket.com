@@ -170,23 +170,46 @@ const Navbar = (props: Props) => {
               <DropdownTrigger className="cursor-pointer">
                 <Avatar src={user.imageUrl} size="md" />
               </DropdownTrigger>
-              <DropdownMenu aria-label="Static Actions">
-                <DropdownItem onClick={() => router.push("/user/profile")}>
-                  Profile
-                </DropdownItem>
-                <DropdownItem onClick={() => router.push("/user/orders")}>
-                  Orders
-                </DropdownItem>
-                <DropdownItem key="" href="/settings">
-                  Settings
-                </DropdownItem>
-                <DropdownItem
-                  onPress={async () => await signOut()}
-                  className="text-danger"
-                  color="danger"
-                >
-                  Sign Out
-                </DropdownItem>
+              <DropdownMenu
+                items={[
+                  {
+                    label: "Profile",
+                    onClick: () => router.push("/user/profile"),
+                    key: "profile",
+                  },
+                  {
+                    label: "Orders",
+                    onClick: () => router.push("/user/orders"),
+                    key: "orders",
+                  },
+                  {
+                    label: "Soft Copy",
+                    onClick: () => router.push("/subjects"),
+                    key: "softcopy",
+                  },
+                  {
+                    label: "Hard Copy",
+                    onClick: () => router.push("/hardcopy"),
+                    key: "hardcopy",
+                  },
+                  {
+                    label: "Contact Us",
+                    onClick: () => router.push("/contact-us"),
+                    key: "contact",
+                  },
+                  {
+                    label: "Sign Out",
+                    onClick: async () => await signOut(),
+                    key: "sign",
+                  },
+                ]}
+                aria-label="Static Actions"
+              >
+                {(item) => (
+                  <DropdownItem key={item.key} onClick={item.onClick}>
+                    {item.label}
+                  </DropdownItem>
+                )}
               </DropdownMenu>
             </Dropdown>
           ) : (
