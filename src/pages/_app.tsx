@@ -48,7 +48,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         />
         <FlexContainer className="fixed bottom-5 right-5">
           <SocialIcon
-            url={"https://web.whatsapp.com/send?phone=+918100517624"}
+            url={"https://wa.me/918100517624"}
+            network="whatsapp"
             target="_blank"
           />
         </FlexContainer>
