@@ -13,6 +13,7 @@ import {
 import type { AppProps } from "next/app";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import Script from "next/script";
 import { Toaster } from "react-hot-toast";
 import { SocialIcon } from "react-social-icons";
 
@@ -55,8 +56,9 @@ function MyApp({ Component, pageProps }: AppProps) {
           />
         </FlexContainer>
       </Providers>
-      <script
-        async
+      <Script
+        async={true}
+        strategy="afterInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
       />
     </ClerkProvider>
