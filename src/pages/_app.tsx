@@ -57,10 +57,18 @@ function MyApp({ Component, pageProps }: AppProps) {
         </FlexContainer>
       </Providers>
       <Script
-        async={true}
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
       />
+      <Script id="ga-analytics">
+        {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+      </Script>
     </ClerkProvider>
   );
 }
