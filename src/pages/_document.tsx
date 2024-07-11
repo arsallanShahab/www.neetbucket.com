@@ -15,7 +15,12 @@ class MyDocument extends Document {
   render() {
     return (
       <Html>
-        <Head>{/* Add your custom head elements here */}</Head>
+        <Head>
+          <meta
+            name="google-adsense-account"
+            content="ca-pub-5096956769841020"
+          ></meta>
+        </Head>
         <body>
           <Main />
           <NextScript />
