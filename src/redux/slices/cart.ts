@@ -7,6 +7,7 @@ interface CartState {
   softcopy_items: SoftCopyEntry[];
   hardcopy_items: HardCopyEntry[];
   isCartOpen: boolean;
+  isFirstTimeCartOpen: boolean;
   total_items_softcopy: number;
   total_amount_softcopy: number;
   total_items_hardcopy: number;
@@ -16,6 +17,7 @@ interface CartState {
 const initialState: CartState = {
   order_type: "softcopy",
   isCartOpen: false,
+  isFirstTimeCartOpen: true,
   softcopy_items: [],
   total_items_softcopy: 0,
   total_amount_softcopy: 0,
@@ -44,6 +46,15 @@ const cartSlice = createSlice({
         0,
       );
     },
+    buyNowSoftCopy(state, action: PayloadAction<SoftCopyEntry>) {
+      state.order_type = "softcopy";
+      state.softcopy_items = [action.payload];
+      state.total_items_softcopy = state.softcopy_items.length;
+      state.total_amount_softcopy = state.softcopy_items.reduce(
+        (acc, item) => acc + item.fields.price,
+        0,
+      );
+    },
     removeItem(state, action: PayloadAction<SoftCopyEntry["sys"]["id"]>) {
       state.softcopy_items = state.softcopy_items.filter(
         (item) => item.sys.id !== action.payload,
@@ -64,10 +75,16 @@ const cartSlice = createSlice({
       ) {
         return;
       }
-      state?.hardcopy_items?.push(action?.payload);
-      state.total_items_hardcopy = state?.hardcopy_items?.length;
-      state.total_amount_hardcopy = state?.hardcopy_items?.reduce(
-        (acc, item) => acc + item?.fields?.price,
+      // state?.hardcopy_items?.push(action?.payload);
+      // state.total_items_hardcopy = state?.hardcopy_items?.length;
+      // state.total_amount_hardcopy = state?.hardcopy_items?.reduce(
+      //   (acc, item) => acc + item?.fields?.price,
+      //   0,
+      // );
+      state.hardcopy_items = [action.payload];
+      state.total_items_hardcopy = state.hardcopy_items.length;
+      state.total_amount_hardcopy = state.hardcopy_items.reduce(
+        (acc, item) => acc + item.fields.price,
         0,
       );
     },
@@ -88,6 +105,12 @@ const cartSlice = createSlice({
     toggleCart(state) {
       state.isCartOpen = !state.isCartOpen;
     },
+    setCartOpen(state, action: PayloadAction<boolean>) {
+      state.isCartOpen = action.payload;
+    },
+    setFirstTimeCartOpen(state, action: PayloadAction<boolean>) {
+      state.isFirstTimeCartOpen = action.payload;
+    },
     clearCart(state) {
       state.softcopy_items = [];
       state.hardcopy_items = [];
@@ -95,6 +118,8 @@ const cartSlice = createSlice({
       state.total_amount_softcopy = 0;
       state.total_items_hardcopy = 0;
       state.total_amount_hardcopy = 0;
+      state.isCartOpen = false;
+      state.isFirstTimeCartOpen = true;
     },
   },
 });
@@ -102,10 +127,13 @@ const cartSlice = createSlice({
 export const {
   addItem,
   removeItem,
+  buyNowSoftCopy,
   toggleCart,
   addItemHardCopy,
   removeItemHardCopy,
   clearCart,
+  setCartOpen,
+  setFirstTimeCartOpen,
 } = cartSlice.actions;
 
 export const cartReducer = cartSlice.reducer;

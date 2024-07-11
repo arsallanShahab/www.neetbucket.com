@@ -48,13 +48,23 @@ function MyApp({ Component, pageProps }: AppProps) {
             },
           }}
         />
-        <FlexContainer className="fixed bottom-5 right-5">
+        <div className="fixed bottom-5 right-5 flex flex-col items-center justify-center gap-2.5 md:flex-row">
           <SocialIcon
             url={"https://wa.me/918100517624"}
             network="whatsapp"
             target="_blank"
           />
-        </FlexContainer>
+          <SocialIcon
+            url={"https://t.me/neetbucket"}
+            network="telegram"
+            target="_blank"
+          />
+          <SocialIcon
+            url={"https://instagram.com/neet_bucket"}
+            network="instagram"
+            target="_blank"
+          />
+        </div>
       </Providers>
       <Script
         strategy="lazyOnload"

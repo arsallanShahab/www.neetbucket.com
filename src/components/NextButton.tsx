@@ -16,8 +16,10 @@ interface NextButtonProps {
     | "success"
     | "warning"
     | "error"
-    | "badge";
+    | "badge"
+    | "flat";
   loading?: boolean;
+  isIcon?: boolean;
 }
 
 const getColorSchemeClass = (colorScheme: NextButtonProps["colorScheme"]) => {
@@ -34,6 +36,8 @@ const getColorSchemeClass = (colorScheme: NextButtonProps["colorScheme"]) => {
       return "border border-red-100 bg-red-600 hover:bg-red-500 active:bg-red-800";
     case "badge":
       return "rounded-lg py-2 bg-zinc-950 text-white h-auto shadow-none border-none";
+    case "flat":
+      return "text-black bg-transparent border-none shadow-none hover:bg-zinc-100 active:bg-zinc-200";
     default:
       return "border border-zinc-100 text-black bg-transparent hover:bg-zinc-100 active:bg-zinc-200";
   }
@@ -46,6 +50,7 @@ const NextButton = forwardRef<HTMLButtonElement, NextButtonProps>(
       colorScheme,
       loading = false,
       disabled = false,
+      isIcon = false,
       className,
       children,
       ...rest
@@ -62,6 +67,7 @@ const NextButton = forwardRef<HTMLButtonElement, NextButtonProps>(
         variant={variant}
         className={cn(
           "text-xs font-medium text-white shadow-small active:scale-95",
+          isIcon && "min-w-0 rounded-3xl px-3 py-2",
           colorSchemeClass,
           className,
         )}

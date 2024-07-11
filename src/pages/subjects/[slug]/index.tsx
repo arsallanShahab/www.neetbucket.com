@@ -5,7 +5,13 @@ import Wrapper from "@/components/Wrapper";
 import { useGlobalContext } from "@/components/context-provider";
 import client from "@/lib/contentful";
 import { SoftCopyChapter } from "@/lib/types";
-import { addItem, removeItem, toggleCart } from "@/redux/slices/cart";
+import {
+  addItem,
+  removeItem,
+  setCartOpen,
+  setFirstTimeCartOpen,
+  toggleCart,
+} from "@/redux/slices/cart";
 import { AppDispatch, RootState } from "@/redux/store";
 import {
   BreadcrumbItem,
@@ -182,9 +188,11 @@ export const getStaticProps = async (ctx: GetStaticPropsContext) => {
 };
 
 const Chapter = ({ chapter }: { chapter: SoftCopyChapter }) => {
-  const { isCartOpen, softcopy_items: items } = useSelector(
-    (state: RootState) => state.cart,
-  );
+  const {
+    isCartOpen,
+    isFirstTimeCartOpen,
+    softcopy_items: items,
+  } = useSelector((state: RootState) => state.cart);
   const isInCart = items?.some((item) => item.sys.id === chapter.sys.id);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -196,8 +204,11 @@ const Chapter = ({ chapter }: { chapter: SoftCopyChapter }) => {
   const link = `/subjects/${chapter.fields.subject.fields.slug}/${chapter.sys.id}`;
 
   const handleAddToCart = () => {
-    if (!isCartOpen) {
-      dispatch(toggleCart());
+    console.log(isFirstTimeCartOpen, "firstTimeCartOpen");
+    console.log(isCartOpen, "isCartOpen");
+    if (!isCartOpen && isFirstTimeCartOpen) {
+      dispatch(setCartOpen(true));
+      dispatch(setFirstTimeCartOpen(false));
     }
     if (isInCart) {
       dispatch(removeItem(chapter.sys.id));

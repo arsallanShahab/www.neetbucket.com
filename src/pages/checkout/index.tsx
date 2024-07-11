@@ -7,7 +7,7 @@ import NextInput from "@/components/NextInput";
 import Wrapper from "@/components/Wrapper";
 import useGet from "@/lib/hooks/get-api";
 import { convertToHttpsLink, excerpt } from "@/lib/utils";
-import { clearCart } from "@/redux/slices/cart";
+import { clearCart, removeItem } from "@/redux/slices/cart";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useAuth, useUser } from "@clerk/nextjs";
 import {
@@ -20,6 +20,7 @@ import {
   Selection,
 } from "@nextui-org/react";
 import { City, ICity, IState, State } from "country-state-city";
+import { Trash } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { Key, useCallback, useEffect, useState } from "react";
@@ -502,7 +503,11 @@ const Index = () => {
                     item.fields.chapterThumbnail.fields.file.url,
                   );
                   return (
-                    <FlexContainer key={item.sys.id} gap="md">
+                    <FlexContainer
+                      key={item.sys.id}
+                      gap="md"
+                      className="relative items-center rounded-xl bg-zinc-100 p-2"
+                    >
                       <Image
                         width={500}
                         height={500}
@@ -524,6 +529,16 @@ const Index = () => {
                           ₹{item?.fields?.price}
                         </h1>
                       </FlexContainer>
+                      <NextButton
+                        colorScheme="error"
+                        isIcon
+                        className="absolute -right-2.5 -top-2.5"
+                        onClick={() => {
+                          dispatch(removeItem(item.sys.id));
+                        }}
+                      >
+                        <Trash className="h-3.5 w-3.5" />
+                      </NextButton>
                     </FlexContainer>
                   );
                 })}
@@ -533,7 +548,11 @@ const Index = () => {
                     item.fields.chapterThumbnail.fields.file.url,
                   );
                   return (
-                    <FlexContainer key={item.sys.id} gap="md">
+                    <FlexContainer
+                      key={item.sys.id}
+                      gap="md"
+                      className="items-center rounded-xl bg-zinc-100 p-2"
+                    >
                       <Image
                         width={500}
                         height={500}

@@ -8,6 +8,7 @@ import { convertToHttpsLink } from "@/lib/utils";
 import { addItemHardCopy } from "@/redux/slices/cart";
 import { AppDispatch } from "@/redux/store";
 import { HardCopyEntry } from "@/types/contentful/hardcopy";
+import { Button } from "@nextui-org/react";
 import { EntryCollection } from "contentful";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -36,7 +37,7 @@ const Index = (props: Props) => {
                 variant="column-start"
                 wrap="nowrap"
                 key={item.sys.id}
-                className="p-3"
+                className="rounded-xl bg-zinc-100 p-3"
               >
                 <Heading variant="subtitle1">{item.fields.heading}</Heading>
                 <Image
@@ -46,16 +47,25 @@ const Index = (props: Props) => {
                   height={400}
                   className="h-full max-h-[350px] w-full rounded-xl object-cover"
                 />
-                <FlexContainer variant="row-end">
-                  <NextButton
+                <FlexContainer variant="row-end" className="">
+                  {/* <div
+                    // onClick={() => {
+                    //   dispatch(addItemHardCopy(item));
+                    //   router.push("/checkout");
+                    // }}
+                    className="cursor-pointer rounded-xl border bg-white px-6 py-2.5 text-xs font-medium text-black duration-100 active:scale-95"
+                  >
+                    Add to Cart
+                  </div> */}
+                  <div
                     onClick={() => {
                       dispatch(addItemHardCopy(item));
                       router.push("/checkout");
                     }}
-                    colorScheme="primary"
+                    className="cursor-pointer rounded-xl bg-purple-500 px-6 py-2.5 text-xs font-medium text-white duration-100 active:scale-95"
                   >
-                    Buy
-                  </NextButton>
+                    Buy @ ₹{item?.fields?.price}
+                  </div>
                 </FlexContainer>
               </FlexContainer>
             );

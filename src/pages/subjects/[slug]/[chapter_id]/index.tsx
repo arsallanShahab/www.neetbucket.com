@@ -5,13 +5,19 @@ import Wrapper from "@/components/Wrapper";
 import client from "@/lib/contentful";
 import { SoftCopyChapter, Subject } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { addItem, removeItem, toggleCart } from "@/redux/slices/cart";
+import {
+  addItem,
+  buyNowSoftCopy,
+  removeItem,
+  toggleCart,
+} from "@/redux/slices/cart";
 import { AppDispatch, RootState } from "@/redux/store";
 import { BreadcrumbItem, Breadcrumbs, Divider } from "@nextui-org/react";
 import { useToggle } from "@uidotdev/usehooks";
 import { Entry, EntryCollection } from "contentful";
 import { GetStaticPropsContext } from "next";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -27,6 +33,7 @@ const Index = (props: Props) => {
   const [pointsVisible, setPointsVisible] = useState<boolean>(false);
 
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
   console.log(props.data, "props");
 
@@ -37,6 +44,11 @@ const Index = (props: Props) => {
     }
     if (!isCartOpen) dispatch(toggleCart());
     dispatch(addItem(props.data));
+  };
+
+  const handleBuyNow = () => {
+    dispatch(buyNowSoftCopy(props.data));
+    router.push("/checkout");
   };
   if (!props.data)
     return (
@@ -163,7 +175,10 @@ const Index = (props: Props) => {
                 >
                   {isInCart ? "Remove from Cart" : "Add to Cart"}
                 </button>
-                <button className="text-md basis-full rounded-xl border border-green-50 bg-green-500 px-5 py-5 text-center font-medium text-white duration-100 hover:bg-green-400 active:scale-95 md:basis-1/2 md:rounded-r-xl md:border-l-0">
+                <button
+                  onClick={handleBuyNow}
+                  className="text-md basis-full rounded-xl border border-green-50 bg-green-500 px-5 py-5 text-center font-medium text-white duration-100 hover:bg-green-400 active:scale-95 md:basis-1/2 md:rounded-r-xl md:border-l-0"
+                >
                   Buy Now
                 </button>
               </FlexContainer>

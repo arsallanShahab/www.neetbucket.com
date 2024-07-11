@@ -2,7 +2,7 @@
 
 import { SoftCopyChapter } from "@/lib/types";
 import { cn, convertToHttpsLink, excerpt } from "@/lib/utils";
-import { removeItem, toggleCart } from "@/redux/slices/cart";
+import { removeItem, setCartOpen, toggleCart } from "@/redux/slices/cart";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useClerk, useUser } from "@clerk/nextjs";
 import {
@@ -46,10 +46,11 @@ const Navbar = (props: Props) => {
   const { width } = useWindowSize();
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const cartButtonRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
-  const ref = useClickAway(() => {
-    dispatch(toggleCart());
-  });
+  // const ref = useClickAway(() => {
+  //   dispatch(toggleCart());
+  // });
 
   useEffect(() => {
     if (width && width > 640) {
@@ -76,7 +77,8 @@ const Navbar = (props: Props) => {
         !cartButtonRef.current?.contains(e.target as Node) &&
         !ref.current?.contains(e.target as Node)
       ) {
-        setIsClicked(false);
+        // console.log("clicked outside", e.target);
+        dispatch(setCartOpen(false));
       }
     };
     document.addEventListener("click", handleClick);
@@ -155,7 +157,9 @@ const Navbar = (props: Props) => {
             <ShadcnButton
               variant="outline"
               data-cart-id="cart"
-              onClick={(e) => setIsClicked(!isClicked)}
+              onClick={(e) => {
+                dispatch(setCartOpen(!isCartOpen));
+              }}
               className="relative h-auto px-2"
             >
               <span className="absolute -right-2.5 -top-2.5 rounded-full bg-danger px-2 py-1 text-xs font-medium text-white shadow-xl shadow-rose-400">
@@ -226,7 +230,7 @@ const Navbar = (props: Props) => {
         </div>
       </div>
       <AnimatePresence>
-        {isClicked && (
+        {isCartOpen && (
           <motion.div
             ref={ref as RefObject<HTMLDivElement>}
             transition={{

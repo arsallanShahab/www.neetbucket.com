@@ -17,6 +17,7 @@ import rootReducer from "./rootReducer";
 const persistConfig = {
   key: "root",
   storage: localForage,
+  version: 1,
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
