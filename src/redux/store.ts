@@ -34,9 +34,18 @@ const store = configureStore({
   },
 });
 
+// Function to reset the storage
+function resetStorage() {
+  persistor.purge().then(() => {
+    console.log("Purge completed");
+    // You can rehydrate or reload the application as needed
+    window.location.reload(); // This reloads the application
+  });
+}
+
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;
 
 export const persistor = persistStore(store);
 
-export { store };
+export { resetStorage, store };

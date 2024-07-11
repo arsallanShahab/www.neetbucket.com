@@ -1,6 +1,7 @@
 import FlexContainer from "@/components/FlexContainer";
 import Navbar from "@/components/navbar";
 import { Providers } from "@/components/providers";
+import { resetStorage } from "@/redux/store";
 import "@/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import {
@@ -14,12 +15,24 @@ import type { AppProps } from "next/app";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Script from "next/script";
+import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { SocialIcon } from "react-social-icons";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const GA_MEASUREMENT_ID = "G-33KP1TNFDZ";
+
+  useEffect(() => {
+    const version = localStorage.getItem("version");
+    if (version === null || version === undefined || version === "")
+      localStorage.setItem("version", "1.0.0");
+    if (localStorage.getItem("version") === "1.0.0") {
+      resetStorage();
+      localStorage.setItem("version", "1.0.1");
+    }
+  }, []);
+
   return (
     <ClerkProvider
       appearance={{

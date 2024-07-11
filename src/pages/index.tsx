@@ -1,6 +1,8 @@
 import { Button as ShadcnButton } from "@/components/ui/button";
+import { resetStorage } from "@/redux/store";
 import { BookText, FileIcon } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
 
 // min-h-[calc(100vh_-_var(--nav-height))]
 
