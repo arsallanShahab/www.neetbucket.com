@@ -1,5 +1,11 @@
 import { SignIn } from "@clerk/nextjs";
-// import { dark } from "@clerk/themes";
+import {
+  dark,
+  experimental__simple,
+  experimental_createTheme,
+  neobrutalism,
+  shadesOfPurple,
+} from "@clerk/themes";
 
 export default function Page() {
   return (
@@ -12,7 +18,8 @@ export default function Page() {
             animations: true,
             socialButtonsPlacement: "top",
           },
-          // baseTheme:dark
+          // baseTheme: shadesOfPurple,
+          // baseTheme:BaseTheme
         }}
       />
     </div>

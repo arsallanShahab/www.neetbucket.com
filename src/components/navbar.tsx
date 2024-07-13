@@ -141,7 +141,7 @@ const Navbar = (props: Props) => {
             classNames={{
               input: "font-medium",
               inputWrapper:
-                "ring-2 ring-transparent focus-within:ring-2 focus-within:ring-zinc-200 transition-all duration-200 ease-in-out",
+                "ring-2 ring-transparent focus-within:ring-2 focus-within:ring-zinc-200 transition-all duration-200 ease-in-out w-60",
             }}
             startContent={
               <Search className="pointer-events-none h-5 w-5 flex-shrink-0 text-default-400" />
@@ -186,21 +186,21 @@ const Navbar = (props: Props) => {
                     onClick: () => router.push("/user/orders"),
                     key: "orders",
                   },
-                  {
-                    label: "Soft Copy",
-                    onClick: () => router.push("/subjects"),
-                    key: "softcopy",
-                  },
-                  {
-                    label: "Hard Copy",
-                    onClick: () => router.push("/hardcopy"),
-                    key: "hardcopy",
-                  },
-                  {
-                    label: "Contact Us",
-                    onClick: () => router.push("/contact-us"),
-                    key: "contact",
-                  },
+                  // {
+                  //   label: "Soft Copy",
+                  //   onClick: () => router.push("/subjects"),
+                  //   key: "softcopy",
+                  // },
+                  // {
+                  //   label: "Hard Copy",
+                  //   onClick: () => router.push("/hardcopy"),
+                  //   key: "hardcopy",
+                  // },
+                  // {
+                  //   label: "Contact Us",
+                  //   onClick: () => router.push("/contact-us"),
+                  //   key: "contact",
+                  // },
                   {
                     label: "Sign Out",
                     onClick: async () => await signOut(),

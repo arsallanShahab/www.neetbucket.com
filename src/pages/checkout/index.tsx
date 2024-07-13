@@ -98,18 +98,6 @@ const Index = () => {
       toast.error("Please enter your phone number");
       return;
     }
-    if (!formData.address) {
-      toast.error("Please enter your address");
-      return;
-    }
-    if (!city) {
-      toast.error("Please enter your city");
-      return;
-    }
-    if (!state) {
-      toast.error("Please enter your state");
-      return;
-    }
     if (Array.from(paymentMethod).length === 0) {
       toast.error("Please select a payment method");
       return;
@@ -120,8 +108,8 @@ const Index = () => {
     if (order_type === "softcopy") {
       const orderData = {
         ...formData,
-        city: city,
-        state: s?.name || (state as string),
+        // city: city,
+        // state: s?.name || (state as string),
         paymentMethod: Array.from(paymentMethod).toString(),
         items: softcopy_items,
         total_amount: total_amount_softcopy,
@@ -182,6 +170,18 @@ const Index = () => {
       }
     }
     if (order_type === "hardcopy") {
+      if (!formData.address) {
+        toast.error("Please enter your address");
+        return;
+      }
+      if (!city) {
+        toast.error("Please enter your city");
+        return;
+      }
+      if (!state) {
+        toast.error("Please enter your state");
+        return;
+      }
       const mappedItems = hardcopy_items.map((item) => {
         return {
           id: item.sys.id,
@@ -362,94 +362,55 @@ const Index = () => {
                   setFormData({ ...formData, phone: value })
                 }
               />
-              <Input
-                label="Address"
-                labelPlacement="outside"
-                placeholder="Enter your address"
-                value={formData.address}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, address: value })
-                }
-              />
-
-              {/* <Autocomplete
-                label="City"
-                labelPlacement="outside"
-                placeholder="Search your city"
-                defaultItems={CitiesData.map((city) => ({
-                  label: city.name,
-                  value: city.name,
-                }))}
-                selectedKey={selectedCity}
-                onSelectionChange={setSelectedCity}
-              >
-                {(item) => (
-                  <AutocompleteItem key={item.value}>
-                    {item.label}
-                  </AutocompleteItem>
-                )}
-              </Autocomplete> */}
-              {/* <Autocomplete
-                label="States"
-                labelPlacement="outside"
-                placeholder="Search your state"
-                defaultItems={StatesData.map((state) => ({
-                  label: state.name,
-                  value: state.isoCode,
-                }))}
-                selectedKey={selectedState}
-                onSelectionChange={(selection) => {
-                  if (!selection) return;
-                  setSelectedState(selection);
-                  const cities = City.getCitiesOfState(
-                    "IN",
-                    selection?.toString(),
-                  );
-                  setCitiesData(cities);
-                }}
-              >
-                {(item) => (
-                  <AutocompleteItem key={item.value}>
-                    {item.label}
-                  </AutocompleteItem>
-                )}
-              </Autocomplete> */}
-              <Autocomplete
-                label="State"
-                labelPlacement="outside"
-                variant="flat"
-                defaultItems={StatesData.map((state) => ({
-                  label: state.name,
-                  value: state.isoCode,
-                }))}
-                placeholder="Search your state"
-                selectedKey={state as string}
-                onSelectionChange={setState}
-              >
-                {(item) => (
-                  <AutocompleteItem key={item.value}>
-                    {item.label}
-                  </AutocompleteItem>
-                )}
-              </Autocomplete>
-              <Autocomplete
-                label="City"
-                labelPlacement="outside"
-                variant="flat"
-                defaultItems={CitiesData.map((city) => ({
-                  label: city.name,
-                  value: city.name,
-                }))}
-                placeholder="Search your city"
-                selectedKey={city as string}
-                onSelectionChange={setCity}
-              >
-                {(item) => (
-                  <AutocompleteItem key={item.value}>
-                    {item.label}
-                  </AutocompleteItem>
-                )}
-              </Autocomplete>
+              {order_type === "hardcopy" && (
+                <>
+                  <Input
+                    label="Address"
+                    labelPlacement="outside"
+                    placeholder="Enter your address"
+                    value={formData.address}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, address: value })
+                    }
+                  />
+                  <Autocomplete
+                    label="State"
+                    labelPlacement="outside"
+                    variant="flat"
+                    defaultItems={StatesData.map((state) => ({
+                      label: state.name,
+                      value: state.isoCode,
+                    }))}
+                    placeholder="Search your state"
+                    selectedKey={state as string}
+                    onSelectionChange={setState}
+                  >
+                    {(item) => (
+                      <AutocompleteItem key={item.value}>
+                        {item.label}
+                      </AutocompleteItem>
+                    )}
+                  </Autocomplete>
+                  <Autocomplete
+                    label="City"
+                    labelPlacement="outside"
+                    variant="flat"
+                    defaultItems={CitiesData.map((city) => ({
+                      label: city.name,
+                      value: city.name,
+                    }))}
+                    placeholder="Search your city"
+                    selectedKey={city as string}
+                    onSelectionChange={setCity}
+                  >
+                    {(item) => (
+                      <AutocompleteItem key={item.value}>
+                        {item.label}
+                      </AutocompleteItem>
+                    )}
+                  </Autocomplete>
+                </>
+              )}
               {/* <AutoComplete
                 label="State"
                 placeholder="Enter your state"

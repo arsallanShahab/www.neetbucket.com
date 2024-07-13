@@ -1,4 +1,5 @@
 import FlexContainer from "@/components/FlexContainer";
+import Logo from "@/components/icons/logo";
 import Navbar from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import { resetStorage } from "@/redux/store";
@@ -37,8 +38,12 @@ function MyApp({ Component, pageProps }: AppProps) {
     <ClerkProvider
       appearance={{
         layout: {
-          socialButtonsVariant: "auto",
+          animations: true,
+          // logoImageUrl: "/logo.png",
+          socialButtonsPlacement: "top",
+          socialButtonsVariant: "iconButton",
         },
+        // baseTheme: shadesOfPurple,
       }}
       routerPush={true}
       signInUrl="/sign-in"
@@ -78,6 +83,39 @@ function MyApp({ Component, pageProps }: AppProps) {
             target="_blank"
           />
         </div>
+        <FlexContainer
+          variant="row-start"
+          className="items-center px-10 pb-10 pt-5 sm:pb-5"
+          gap="2xl"
+        >
+          <Link href={"/"}>
+            <Logo className="h-14 w-14" />
+          </Link>
+          <Link
+            href={"/privacy-policy"}
+            className="font-work-sans text-sm font-medium text-black"
+          >
+            Privacy Policy
+          </Link>
+          <Link
+            href={"/terms-&-condition"}
+            className="font-work-sans text-sm font-medium text-black"
+          >
+            Terms & Conditions
+          </Link>
+          <Link
+            href={"/cancellation-&-refunds"}
+            className="font-work-sans text-sm font-medium text-black"
+          >
+            Cancellations & Refunds
+          </Link>
+          <Link
+            href={"/shipping-&-delivery"}
+            className="font-work-sans text-sm font-medium text-black"
+          >
+            Shipping & Delivery
+          </Link>
+        </FlexContainer>
       </Providers>
       <Script
         strategy="lazyOnload"
