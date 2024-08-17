@@ -7,7 +7,7 @@ import NextInput from "@/components/NextInput";
 import Wrapper from "@/components/Wrapper";
 import useGet from "@/lib/hooks/get-api";
 import { convertToHttpsLink, excerpt } from "@/lib/utils";
-import { clearCart, removeItem } from "@/redux/slices/cart";
+import { clearCart, removeItem, setOrderType } from "@/redux/slices/cart";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useAuth, useUser } from "@clerk/nextjs";
 import {
@@ -320,6 +320,14 @@ const Index = () => {
       </Wrapper>
     );
   }
+
+  if (!isRazorpayLoaded) {
+    return (
+      <div className="fixed inset-0 flex h-full w-full items-center justify-center">
+        <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
+      </div>
+    );
+  }
   return (
     <Wrapper>
       <FlexContainer variant="column-start" gap="xl">
@@ -331,7 +339,30 @@ const Index = () => {
             gap="xl"
             className="lg:col-span-2"
           >
-            <Heading variant="h5">Shipping Address</Heading>
+            <FlexContainer variant="row-between" wrap="nowrap">
+              <Heading variant="h5">Shipping Address</Heading>
+              <Select
+                title="Order Type"
+                label="Order Type"
+                labelPlacement="outside"
+                placeholder="Select your order type"
+                className="w-48"
+                classNames={{
+                  label: "font-medium",
+                }}
+                selectedKeys={[order_type]}
+                onChange={(e) => {
+                  dispatch(
+                    setOrderType(e.target.value as "softcopy" | "hardcopy"),
+                  );
+                }}
+              >
+                <SelectSection>
+                  <SelectItem key={"softcopy"}>Softcopy</SelectItem>
+                  <SelectItem key={"hardcopy"}>Hardcopy</SelectItem>
+                </SelectSection>
+              </Select>
+            </FlexContainer>
             <GridContainer gap="md">
               <Input
                 label="Name"

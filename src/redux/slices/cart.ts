@@ -121,6 +121,9 @@ const cartSlice = createSlice({
       state.isCartOpen = false;
       state.isFirstTimeCartOpen = true;
     },
+    setOrderType(state, action: PayloadAction<"softcopy" | "hardcopy">) {
+      state.order_type = action.payload;
+    },
   },
 });
 
@@ -134,6 +137,7 @@ export const {
   clearCart,
   setCartOpen,
   setFirstTimeCartOpen,
+  setOrderType,
 } = cartSlice.actions;
 
 export const cartReducer = cartSlice.reducer;
