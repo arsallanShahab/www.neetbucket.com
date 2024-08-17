@@ -133,7 +133,7 @@ const Navbar = (props: Props) => {
         )}
       </div>
       <div className="flex w-auto flex-row items-center justify-end gap-y-5 sm:gap-5">
-        {menuOpen && (
+        {/* {menuOpen && (
           <Input
             type="text"
             placeholder="Search..."
@@ -147,7 +147,7 @@ const Navbar = (props: Props) => {
               <Search className="pointer-events-none h-5 w-5 flex-shrink-0 text-default-400" />
             }
           />
-        )}
+        )} */}
         <div className="flex w-full flex-row items-center justify-end gap-5">
           {" "}
           <div
