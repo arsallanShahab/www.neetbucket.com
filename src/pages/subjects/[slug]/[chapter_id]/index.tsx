@@ -17,6 +17,7 @@ import { useToggle } from "@uidotdev/usehooks";
 import { Entry, EntryCollection } from "contentful";
 import { GetStaticPropsContext } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -169,12 +170,27 @@ const Index = (props: Props) => {
                 variant="row-between"
                 className="flex-wrap gap-3 md:flex-nowrap"
               >
-                <button
+                {isInCart ? (
+                  <Link
+                    href="/checkout"
+                    className="text-md basis-full rounded-xl border bg-yellow-500 px-5 py-5 text-center font-medium text-white duration-100 hover:bg-yellow-600 active:scale-95 md:basis-1/2 md:rounded-l-xl md:border-r-0"
+                  >
+                    Go to Cart
+                  </Link>
+                ) : (
+                  <button
+                    onClick={handleAddToCart}
+                    className="text-md basis-full rounded-xl border bg-zinc-400 px-5 py-5 text-center font-medium text-white duration-100 hover:bg-zinc-500 active:scale-95 md:basis-1/2 md:rounded-l-xl md:border-r-0"
+                  >
+                    Add to Cart
+                  </button>
+                )}
+                {/* <button
                   onClick={handleAddToCart}
                   className="text-md basis-full rounded-xl border bg-zinc-400 px-5 py-5 text-center font-medium text-white duration-100 hover:bg-zinc-500 active:scale-95 md:basis-1/2 md:rounded-l-xl md:border-r-0"
                 >
                   {isInCart ? "Remove from Cart" : "Add to Cart"}
-                </button>
+                </button> */}
                 <button
                   onClick={handleBuyNow}
                   className="text-md basis-full rounded-xl border border-green-50 bg-green-500 px-5 py-5 text-center font-medium text-white duration-100 hover:bg-green-400 active:scale-95 md:basis-1/2 md:rounded-r-xl md:border-l-0"

@@ -154,19 +154,21 @@ const Navbar = (props: Props) => {
             ref={cartButtonRef}
             className="flex items-center justify-between gap-2.5 sm:gap-5"
           >
-            <ShadcnButton
-              variant="outline"
-              data-cart-id="cart"
-              onClick={(e) => {
-                dispatch(setCartOpen(!isCartOpen));
-              }}
-              className="relative h-auto px-2"
-            >
-              <span className="absolute -right-2.5 -top-2.5 rounded-full bg-danger px-2 py-1 text-xs font-medium text-white shadow-xl shadow-rose-400">
-                {items?.length ? items?.length : 0}
-              </span>
-              <ShoppingCart className="h-4 w-4" />
-            </ShadcnButton>
+            <Link href={"/checkout"}>
+              <ShadcnButton
+                variant="outline"
+                data-cart-id="cart"
+                // onClick={(e) => {
+                //   dispatch(setCartOpen(!isCartOpen));
+                // }}
+                className="relative h-auto px-2"
+              >
+                <span className="absolute -right-2.5 -top-2.5 rounded-full bg-danger px-2 py-1 text-xs font-medium text-white shadow-xl shadow-rose-400">
+                  {items?.length ? items?.length : 0}
+                </span>
+                <ShoppingCart className="h-4 w-4" />
+              </ShadcnButton>
+            </Link>
           </div>
           <Divider orientation="vertical" className="hidden h-6 sm:block" />
           {isSignedIn && isLoaded ? (
@@ -229,7 +231,7 @@ const Navbar = (props: Props) => {
           )}
         </div>
       </div>
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {isCartOpen && (
           <motion.div
             ref={ref as RefObject<HTMLDivElement>}
@@ -296,7 +298,7 @@ const Navbar = (props: Props) => {
             )}
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
     </div>
   );
 };
