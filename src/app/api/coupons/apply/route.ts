@@ -27,9 +27,11 @@ export async function GET(req: NextRequest) {
       message: "Coupon applied successfully",
     });
   } catch (error) {
+    console.log(error, "error");
     return NextResponse.json({
       success: false,
       message: "Something went wrong",
+      error: error,
     });
   }
 }
