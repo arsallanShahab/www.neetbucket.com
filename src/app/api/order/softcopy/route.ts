@@ -25,6 +25,8 @@ export interface SoftCopyOrder {
     state: string;
   };
   total_quantity: number;
+  isDiscounted: boolean;
+  discount_amount?: number;
   total_amount: number;
   order_type: "softcopy" | "hardcopy";
   payment_status: string;
@@ -35,6 +37,8 @@ export async function POST(req: Request) {
   const body: {
     items: { sys: { id: string } }[];
     total_amount: number;
+    isDiscounted: boolean;
+    discount_amount: number;
     total_items: number;
     user_id: string;
     email: string;
@@ -79,6 +83,8 @@ export async function POST(req: Request) {
         state: body.state,
       },
       items: boughtChapters,
+      isDiscounted: body.isDiscounted,
+      discount_amount: body.discount_amount,
       total_quantity: body.total_items,
       total_amount: body.total_amount,
       created_at: new Date(),

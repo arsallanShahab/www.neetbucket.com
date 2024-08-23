@@ -49,6 +49,8 @@ const Index = () => {
   // const [selectedState, setSelectedState] = useState<Option | null>(null);
   const [state, setState] = useState<React.Key>("");
   const [city, setCity] = useState<React.Key>("");
+  const [couponCode, setCouponCode] = useState<string>("");
+  const [couponDiscount, setCouponDiscount] = useState<number>(0);
   // const [selectedCity, setSelectedCity] = useState<Option | null>(null);
 
   const [paymentMethod, setPaymentMethod] = useState<Selection>(
@@ -106,13 +108,16 @@ const Index = () => {
     //   (state) => state.isoCode === selectedState?.value,
     // );
     if (order_type === "softcopy") {
+      const total_discount = couponDiscount * softcopy_items.length;
       const orderData = {
         ...formData,
         // city: city,
         // state: s?.name || (state as string),
         paymentMethod: Array.from(paymentMethod).toString(),
         items: softcopy_items,
-        total_amount: total_amount_softcopy,
+        total_amount: total_amount_softcopy - total_discount,
+        isDiscounted: total_discount > 0,
+        discount_amount: total_discount,
         total_items: total_items_softcopy,
         user_id: user?.id,
       };
@@ -271,7 +276,47 @@ const Index = () => {
     softcopy_items,
     total_amount_softcopy,
     total_items_softcopy,
+    couponDiscount,
   ]);
+
+  const handleApplyCoupon = useCallback(async () => {
+    if (!couponCode) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
+    try {
+      const response = await fetch("/api/coupons/apply?code=" + couponCode, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = (await response.json()) as {
+        success: boolean;
+        message: string;
+        data: {
+          code: string;
+          name: string;
+          type: string;
+          expiry: string;
+          discount: number;
+          usedBy: string[];
+          usedCount: number;
+          createdAt: string;
+        };
+      };
+      if (data.success) {
+        toast.success(data.message);
+        setCouponDiscount(data?.data?.discount);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      const err = error as Error & { message: string };
+      toast.error(err.message || "An error occurred while applying the coupon");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [couponCode, total_amount_softcopy]);
 
   useEffect(() => {
     const cities = City.getCitiesOfState("IN", state as string);
@@ -321,13 +366,13 @@ const Index = () => {
     );
   }
 
-  if (!isRazorpayLoaded) {
-    return (
-      <div className="fixed inset-0 flex h-full w-full items-center justify-center">
-        <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
-      </div>
-    );
-  }
+  // if (!isRazorpayLoaded) {
+  //   return (
+  //     <div className="fixed inset-0 flex h-full w-full items-center justify-center">
+  //       <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
+  //     </div>
+  //   );
+  // }
   return (
     <Wrapper>
       <FlexContainer variant="column-start" gap="xl">
@@ -572,24 +617,35 @@ const Index = () => {
           <FlexContainer variant="column-start" gap="xl">
             <Heading variant="h5">Payment</Heading>
             <GridContainer gap="lg" className="lg:grid-cols-2">
-              <Select
-                label="Payment Method"
-                labelPlacement="outside"
-                placeholder="Select your payment method"
-                selectedKeys={paymentMethod}
-                isDisabled={order_type === "softcopy"}
-                onSelectionChange={setPaymentMethod}
-              >
-                <SelectItem key="cod">Cash on Delivery</SelectItem>
-                <SelectItem key="online">Online Payment</SelectItem>
-              </Select>
+              {order_type === "hardcopy" && (
+                <Select
+                  label="Payment Method"
+                  labelPlacement="outside"
+                  placeholder="Select your payment method"
+                  selectedKeys={paymentMethod}
+                  onSelectionChange={setPaymentMethod}
+                >
+                  <SelectItem key="cod">Cash on Delivery</SelectItem>
+                  <SelectItem key="online">Online Payment</SelectItem>
+                </Select>
+              )}
               <Input
                 type="text"
                 label="Coupon Code"
                 labelPlacement="outside"
                 placeholder="Enter your coupon code"
-                value=""
-                onValueChange={() => {}}
+                value={couponCode}
+                onValueChange={(value) => setCouponCode(value)}
+                className="col-span-2"
+                endContent={
+                  <NextButton
+                    colorScheme="primary"
+                    className="text-sm"
+                    onClick={handleApplyCoupon}
+                  >
+                    Apply
+                  </NextButton>
+                }
               />
             </GridContainer>
             <FlexContainer variant="column-start" gap="sm">
@@ -603,11 +659,22 @@ const Index = () => {
                 </Heading>
               </FlexContainer>
               <FlexContainer variant="row-between" gap="md">
+                <Heading variant="body1">Discount</Heading>
+                <Heading variant="subtitle1">
+                  ₹
+                  {order_type === "softcopy" &&
+                    couponDiscount * softcopy_items.length}
+                </Heading>
+              </FlexContainer>
+              <FlexContainer variant="row-between" gap="md">
                 <Heading variant="body1">Total Amount</Heading>
                 <Heading variant="subtitle1">
                   ₹
                   {order_type === "softcopy"
-                    ? total_amount_softcopy
+                    ? (
+                        total_amount_softcopy -
+                        couponDiscount * softcopy_items.length
+                      ).toFixed(2)
                     : total_amount_hardcopy}
                 </Heading>
               </FlexContainer>
