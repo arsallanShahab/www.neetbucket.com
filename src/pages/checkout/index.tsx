@@ -277,6 +277,7 @@ const Index = () => {
     total_amount_softcopy,
     total_items_softcopy,
     couponDiscount,
+    couponCode,
   ]);
 
   const handleApplyCoupon = useCallback(async () => {
@@ -287,9 +288,6 @@ const Index = () => {
     try {
       const response = await fetch("/api/coupons/apply?code=" + couponCode, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
       });
       const data = (await response.json()) as {
         success: boolean;
@@ -316,7 +314,7 @@ const Index = () => {
       toast.error(err.message || "An error occurred while applying the coupon");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [couponCode, total_amount_softcopy]);
+  }, [couponCode, total_amount_softcopy, couponDiscount]);
 
   useEffect(() => {
     const cities = City.getCitiesOfState("IN", state as string);
