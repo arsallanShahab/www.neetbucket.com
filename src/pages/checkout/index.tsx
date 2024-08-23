@@ -286,7 +286,7 @@ const Index = () => {
       return;
     }
     try {
-      const response = await fetch("/api/coupons/apply?code=" + couponCode, {
+      const response = await fetch("/api/coupons/apply/" + couponCode, {
         method: "GET",
       });
       const data = (await response.json()) as {
