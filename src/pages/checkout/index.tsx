@@ -319,6 +319,13 @@ const Index = () => {
         setCouponDiscount(data?.data?.discount);
         setCouponType(data?.data?.type === "flat" ? "flat" : "percentage");
       } else {
+        setCouponCode("");
+        setDiscountAmount(0);
+        setTotalSoftcopyAmount(0);
+        setTotalHardcopyAmount(0);
+        setTotalDiscountAmount(0);
+        setCouponDiscount(0);
+        setCouponType(null);
         toast.error(data.message);
       }
     } catch (error) {
