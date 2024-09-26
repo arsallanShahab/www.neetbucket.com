@@ -1,13 +1,16 @@
 import { connectToDatabase } from "@/lib/mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { code: string } },
 ) {
   try {
     const code = params.code;
-    if (!code) {
+    console.log(code, "code");
+    if (!code || code === "" || code.length === 0) {
       return NextResponse.json({
         success: false,
         message: "Please provide a coupon code",

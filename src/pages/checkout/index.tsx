@@ -51,7 +51,14 @@ const Index = () => {
   const [city, setCity] = useState<React.Key>("");
   const [couponCode, setCouponCode] = useState<string>("");
   const [couponDiscount, setCouponDiscount] = useState<number>(0);
+  const [couponType, setCouponType] = useState<"flat" | "percentage" | null>();
   // const [selectedCity, setSelectedCity] = useState<Option | null>(null);
+  // Add state variables
+  const [discountType, setDiscountType] = useState<string | null>(null);
+  const [discountAmount, setDiscountAmount] = useState<number>(0);
+  const [totalSoftcopyAmount, setTotalSoftcopyAmount] = useState<number>(0);
+  const [totalHardcopyAmount, setTotalHardcopyAmount] = useState<number>(0);
+  const [totalDiscountAmount, setTotalDiscountAmount] = useState<number>(0);
 
   const [paymentMethod, setPaymentMethod] = useState<Selection>(
     new Set(["online"]),
@@ -108,16 +115,15 @@ const Index = () => {
     //   (state) => state.isoCode === selectedState?.value,
     // );
     if (order_type === "softcopy") {
-      const total_discount = couponDiscount * softcopy_items.length;
       const orderData = {
         ...formData,
         // city: city,
         // state: s?.name || (state as string),
         paymentMethod: Array.from(paymentMethod).toString(),
         items: softcopy_items,
-        total_amount: total_amount_softcopy - total_discount,
-        isDiscounted: total_discount > 0,
-        discount_amount: total_discount,
+        total_amount: total_amount_softcopy - totalDiscountAmount,
+        isDiscounted: totalDiscountAmount > 0,
+        discount_amount: totalDiscountAmount,
         total_items: total_items_softcopy,
         user_id: user?.id,
       };
@@ -207,9 +213,11 @@ const Index = () => {
         state: s?.name || (state as string),
         paymentMethod: Array.from(paymentMethod).toString(),
         items: mappedItems,
-        total_amount: total_amount_hardcopy,
+        total_amount: total_amount_hardcopy - totalDiscountAmount,
         total_items: total_items_hardcopy,
         user_id: user?.id,
+        isDiscounted: totalDiscountAmount > 0,
+        discount_amount: totalDiscountAmount,
       };
       console.log(orderData, "hardcopy");
       try {
@@ -278,6 +286,9 @@ const Index = () => {
     total_items_softcopy,
     couponDiscount,
     couponCode,
+    totalHardcopyAmount,
+    totalSoftcopyAmount,
+    totalDiscountAmount,
   ]);
 
   const handleApplyCoupon = useCallback(async () => {
@@ -306,6 +317,7 @@ const Index = () => {
       if (data.success) {
         toast.success(data.message);
         setCouponDiscount(data?.data?.discount);
+        setCouponType(data?.data?.type === "flat" ? "flat" : "percentage");
       } else {
         toast.error(data.message);
       }
@@ -314,7 +326,55 @@ const Index = () => {
       toast.error(err.message || "An error occurred while applying the coupon");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [couponCode, total_amount_softcopy, couponDiscount]);
+  }, [
+    couponCode,
+    total_amount_softcopy,
+    total_amount_hardcopy,
+    couponDiscount,
+  ]);
+
+  // Update state variables based on order type and coupon type
+  useEffect(() => {
+    if (order_type === "softcopy") {
+      if (couponType === "percentage") {
+        setDiscountType("percentage");
+        setDiscountAmount(
+          (softcopy_items?.[0].fields.price * couponDiscount) / 100,
+        );
+      } else if (couponType === "flat") {
+        setDiscountType("flat");
+        setDiscountAmount(couponDiscount);
+      }
+      const totalDiscount = discountAmount * softcopy_items.length;
+      setTotalDiscountAmount(totalDiscount);
+      setTotalSoftcopyAmount(
+        total_amount_softcopy - discountAmount * softcopy_items.length,
+      );
+    } else if (order_type === "hardcopy") {
+      if (couponType === "percentage") {
+        setDiscountType("percentage");
+        setDiscountAmount(
+          (hardcopy_items?.[0]?.fields.price * couponDiscount) / 100,
+        );
+      } else if (couponType === "flat") {
+        setDiscountType("flat");
+        setDiscountAmount(couponDiscount);
+      }
+      const totalDiscount = discountAmount * hardcopy_items.length;
+      setTotalDiscountAmount(totalDiscount);
+      setTotalHardcopyAmount(total_amount_hardcopy - discountAmount);
+    }
+  }, [
+    order_type,
+    couponType,
+    couponDiscount,
+    total_amount_softcopy,
+    total_amount_hardcopy,
+    softcopy_items.length,
+    discountAmount,
+    hardcopy_items,
+    softcopy_items,
+  ]);
 
   useEffect(() => {
     const cities = City.getCitiesOfState("IN", state as string);
@@ -659,9 +719,9 @@ const Index = () => {
               <FlexContainer variant="row-between" gap="md">
                 <Heading variant="body1">Discount</Heading>
                 <Heading variant="subtitle1">
-                  ₹
-                  {order_type === "softcopy" &&
-                    couponDiscount * softcopy_items.length}
+                  {/* {order_type === "softcopy" &&
+                    couponDiscount * softcopy_items.length} */}
+                  {totalDiscountAmount.toFixed(2)}
                 </Heading>
               </FlexContainer>
               <FlexContainer variant="row-between" gap="md">
@@ -669,11 +729,8 @@ const Index = () => {
                 <Heading variant="subtitle1">
                   ₹
                   {order_type === "softcopy"
-                    ? (
-                        total_amount_softcopy -
-                        couponDiscount * softcopy_items.length
-                      ).toFixed(2)
-                    : total_amount_hardcopy}
+                    ? totalSoftcopyAmount.toFixed(2)
+                    : totalHardcopyAmount.toFixed(2)}
                 </Heading>
               </FlexContainer>
             </FlexContainer>

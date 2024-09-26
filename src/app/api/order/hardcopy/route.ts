@@ -48,6 +48,8 @@ export interface HardCopyOrder {
   order_type: "softcopy" | "hardcopy";
   payment_status: string;
   created_at: Date | string;
+  isDiscounted?: boolean;
+  discount_amount?: number;
 }
 
 export async function POST(req: Request) {
@@ -72,6 +74,8 @@ export async function POST(req: Request) {
     address: string;
     city: string;
     state: string;
+    isDiscounted: boolean;
+    discount_amount: number;
   } = await req.json();
   console.log(body);
   try {
@@ -110,6 +114,8 @@ export async function POST(req: Request) {
       payment_status: "pending",
       total_quantity: body.total_items,
       total_amount: body.total_amount,
+      isDiscounted: body.isDiscounted,
+      discount_amount: body.discount_amount,
       created_at: new Date(),
     };
     const { db } = await connectToDatabase();
