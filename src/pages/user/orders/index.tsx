@@ -464,6 +464,7 @@ export default function Index() {
         backdrop="blur"
         isOpen={isOpen}
         onClose={onClose}
+        scrollBehavior="inside"
       >
         <ModalContent>
           {(onClose: React.MouseEventHandler<HTMLButtonElement>) => (
