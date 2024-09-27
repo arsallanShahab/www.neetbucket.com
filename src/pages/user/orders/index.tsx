@@ -562,21 +562,23 @@ export default function Index() {
                       </TableBody>
                     </Table>
                   </div>
-                  <div className="flex flex-col gap-2">
-                    <h3 className="text-lg font-semibold">Notes</h3>
-                    <Table>
-                      <TableBody>
-                        {selectedOrder?.notes?.map((note, i) => (
-                          <TableRow key={i}>
-                            <TableCell className="font-semibold">
-                              {note?.chapter_name}
-                            </TableCell>
-                            <TableCell>₹{note?.price}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
+                  {selectedOrder?.notes && (
+                    <div className="flex flex-col gap-2">
+                      <h3 className="text-lg font-semibold">Notes</h3>
+                      <Table>
+                        <TableBody>
+                          {selectedOrder?.notes?.map((note, i) => (
+                            <TableRow key={i}>
+                              <TableCell className="font-semibold">
+                                {note?.chapter_name}
+                              </TableCell>
+                              <TableCell>₹{note?.price}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
                 </FlexContainer>
               </ModalBody>
               <ModalFooter>
